@@ -44,8 +44,9 @@ function testPath($path)
 
 
 }
-$input = "C:\users"
-
+$input = ""
+while($input -ne "stop"){
+$input = read-host "Please enter input"
 if(isEmptyString($input))
 {
 write-host "String is empty"
@@ -60,6 +61,8 @@ else{
 	write-host "Path is NOT valid"
 	}
 	
+}
 
 }
 
+read-host "Done, press enter"
