@@ -129,5 +129,5 @@ else
     Export-Csv -InputObject $wrapper -Path $currentDir"\PCInventory.csv" -NoTypeInformation -Append
     }
 }
-write-host -foreGroundColor green "Completed. PCInfo.CSV is located where the script was run from. Press Enter to exit"
+write-host -foreGroundColor green "Completed. PCInventory.CSV is located where the script was run from. Press Enter to exit"
 read-host
