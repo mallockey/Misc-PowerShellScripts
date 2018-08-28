@@ -3,17 +3,24 @@ $computers = get-content -path $scriptloc\servs.txt
 [int]$totalShadowCopies = 0
 write-host -foreGroundColor yellow "=====================Get Shadow Copies============================"
 write-host -foreGroundColor yellow "Gets Shadow Copies for each server in servers.txt"
+start-sleep -Milliseconds 1000
 
-write-host -foreGroundColor yellow "======================================================"
 
 	foreach ($computer in $computers){
-	write-host -foreGroundColor yellow "Getting Shadow Copies from:"$computer
-	write-host "========================================================"	
-
+		if(test-connection $computer -count 1 -quiet){
+		
 	$dates = get-wmiobject -class win32_shadowcopy -computerName $computer | select-object -expandProperty installdate
+		if($dates -eq $null){
+		write-host -foreGroundColor red $computer "does not have any shadow copies."
+		write-host -foreGroundcolor yellow  "========================================================"
+		continue
+		}
 	$dates = $dates | sort-object 
-
+		write-host -foreGroundcolor yellow  "========================================================"	
+		write-host -foregroundColor yellow Oldest - $computer
+		write-host -foreGroundcolor yellow  "========================================================"	
 		foreach ($date in $dates){
+		
 		$totalShadowCopies++
 		$date = "$date".Insert(4,"-")
 		$date = "$date".Insert(7,"-")
@@ -37,13 +44,23 @@ write-host -foreGroundColor yellow "============================================
 				$hours = $hours
 				$time = "AM"
 			}
-		
+			
 		write-host -foreGroundColor green $date $hours$time
-
 		}
-	write-host "========================================================"	
+		write-host -foreGroundcolor yellow  "========================================================"	
+		write-host -foregroundColor yellow Newest - End of $computer
+		write-host -foreGroundcolor yellow  "========================================================"	
+	
+		
 	write-host -foreGroundColor yellow "Total Shadow copies for $computer"$totalShadowCopies
 	$totalShadowCopies = 0
-	write-host "========================================================"	
+	write-host -foreGroundColor yellow  "========================================================"	
+	}
+	else{
+		write-host -foregroundcolor red $computer "is not online."
+		write-host -foreGroundcolor yellow  "========================================================"
+	}
+	
 }
-read-host "Press Enter to exit"
+write-host -foreGroundColor green "Completed. Press Enter to exit"
+read-host
