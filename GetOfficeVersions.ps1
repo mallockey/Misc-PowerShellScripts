@@ -57,6 +57,6 @@ $computersArray = get-content -path $scriptLoc\computers.txt
 		}
 
 }
-write-host $office2010Count
-write-host $office2013Count
+write-host "Office 2010 Total:"$office2010Count
+write-host "Office 2013 Total:"$office2013Count
 read-host "wait"
