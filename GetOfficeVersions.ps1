@@ -6,8 +6,6 @@ $computersArray = get-content -path $scriptLoc\computers.txt
 	[int]$office2016Count = 0
 	$officeVersion = "N/A"
 	
-
-
 	foreach($computer in $computersArray){
 		if(test-connection $computer -count 1 -quiet)
 		{
@@ -62,7 +60,6 @@ $computersArray = get-content -path $scriptLoc\computers.txt
 			$officever64 = (get-command $office201664).FileVersionInfo.Fileversion
 			write-host $computer "- Microsoft Office 2016 version" $officever64
 			}
-
 			else
 			{
 			write-host "$computer - Office is not installed or not installed to the default directory"
@@ -72,10 +69,10 @@ $computersArray = get-content -path $scriptLoc\computers.txt
 		{
 		write-host $computer "is not online"
 		}
-			$wrapper = New-Object PSObject -Property @{ ComputerName = $computer;}
-			$wrapper | add-member NoteProperty OfficeVersion $officeVersion
-			$wrapper | add-member NoteProperty User $userName
-			Export-Csv -InputObject $wrapper -Path $scriptLoc"\OfficeVersions.csv" -NoTypeInformation -Append
+		$wrapper = New-Object PSObject -Property @{ ComputerName = $computer;}
+		$wrapper | add-member NoteProperty OfficeVersion $officeVersion
+		$wrapper | add-member NoteProperty User $userName
+		Export-Csv -InputObject $wrapper -Path $scriptLoc"\OfficeVersions.csv" -NoTypeInformation -Append
 
 }
 write-host "Office 2010 Total:"$office2010Count
