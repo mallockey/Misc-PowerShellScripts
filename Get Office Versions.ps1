@@ -28,37 +28,37 @@ $computersArray = get-content -path $scriptLoc\computers.txt
 			$officever = (get-command $office201032).FileVersionInfo.Fileversion
 			$office2010Count++
 			$officeVersion = "Microsoft Office 2010"
-			write-host $computer "- Microsoft Office 2010 version" $officever
+			write-host $computer "- Microsoft Office 2010 32 bit version" $officever
 			}
 			elseif(test-path $office201064){
 			$officever64 = (get-command $office201064).FileVersionInfo.Fileversion
 			$office2010Count++
 			$officeVersion = "Microsoft Office 2010"
-			write-host $computer "- Microsoft Office 2010 version" $officever64
+			write-host $computer "- Microsoft Office 2010 64 bit version" $officever64
 			}
 			elseif(test-path $office201332){
 			$office2013Count++
 			$officeVersion = "Microsoft Office 2013"
 			$officever64 = (get-command $office201332).FileVersionInfo.Fileversion
-			write-host $computer "- Microsoft Office 2013 version" $officever64
+			write-host $computer "- Microsoft Office 2013 32 bit version" $officever64
 			}
 			elseif(test-path $office201364){
 			$office2013Count++
 			$officeVersion = "Microsoft Office 2013"
 			$officever64 = (get-command $office201364).FileVersionInfo.Fileversion
-			write-host $computer "- Microsoft Office 2013 version" $officever64
+			write-host $computer "- Microsoft Office 2013 64 bit version" $officever64
 			}
 			elseif(test-path $office201632){
 			$office2016Count++
 			$officeVersion = "Microsoft Office 2016"
 			$officever64 = (get-command $office201632).FileVersionInfo.Fileversion
-			write-host $computer "- Microsoft Office 2016 version" $officever64
+			write-host $computer "- Microsoft Office 2016 32 bit version" $officever64
 			}
 			elseif(test-path $office201664){
 			$office2016Count++
 			$officeVersion = "Microsoft Office 2016"
 			$officever64 = (get-command $office201664).FileVersionInfo.Fileversion
-			write-host $computer "- Microsoft Office 2016 version" $officever64
+			write-host $computer "- Microsoft Office 2016 64 version" $officever64
 			}
 			else
 			{
