@@ -1,16 +1,9 @@
 #Author: Josh Melo 8/14/18
+#Last updated on 9/19/18. Changed allowing PCs to be entered into the CSV if they are not online.
 #Run this from a domain controller. Use Attribute Editor to find Distinguished name of OU and enter into script.
 #This gets the following field for each PC in the OU:
 #Computer Name, Logged on User, OS, OS Architecture, Processor, Total RAM, VideoCards, Serial Number and when it was retrived on.
 #It will then store the info in PCInventory.csv where ever the script was run from.
-#PCs that do not respond to pings will still be entered into the PCInventory.csv file for manual entry.
-#PCs that respond to pings but the domain controller can't retrieve info from it are also entered into the PCInventory.csv.
-#The likely cause for the above is RPC service being blocked by Windows Firewall.
-
-import-module ActiveDirectory
-$ErrorActionPreference = "stop"
-$ou = read-host "Enter the OU where the PCs are"
-$currentDir = "$psscriptroot"
 
 import-module ActiveDirectory
 $ErrorActionPreference = "stop"
