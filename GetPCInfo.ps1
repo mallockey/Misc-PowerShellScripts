@@ -62,7 +62,7 @@ catch
 				$osType = $os.caption
 				$osArc = Get-WmiObject Win32_OperatingSystem -ComputerName $computers | select -ExpandProperty osarchitecture
 
-                ##############VideoCard###################
+             		        ##############VideoCard###################
 				[string]$numCards = get-wmiobject -class Win32_VideoController -computername $computers | select -expandproperty deviceid
 
 					if($numCards -like "VideoController1")
@@ -89,7 +89,7 @@ catch
 					[string]$videoCardName = get-wmiobject win32_videocontroller -computername $computers  | select -expandProperty Name
 					}
 				
-                #########EndOfVideoCard##################
+                                #########EndOfVideoCard##################
 
 				$wrapper | add-member NoteProperty User $username
 				$wrapper | add-member NoteProperty OS $osType
