@@ -1,5 +1,5 @@
 $scriptLoc = (Get-Location)
-$computers = get-content -path $scriptloc\servs.txt
+$computers = get-content -path $scriptloc\servers.txt
 [int]$totalShadowCopies = 0
 write-host -foreGroundColor yellow "=====================Get Shadow Copies============================"
 write-host -foreGroundColor yellow "Gets Shadow Copies for each server in servers.txt"
