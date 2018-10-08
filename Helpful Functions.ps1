@@ -65,4 +65,23 @@ else{
 
 }
 
+function getArgument($argument){
+
+	switch($argument){
+	.msi 
+	{
+		return $argument = "/quiet"
+	}
+	.exe
+	{
+		return $argument = "/s"
+	}
+	
+	}
+
+}
+
+$msi = ".exe"
+getArgument($msi)
+
 read-host "Done, press enter"
