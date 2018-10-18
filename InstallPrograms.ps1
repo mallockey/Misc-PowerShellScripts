@@ -1,3 +1,5 @@
+write-host -foreGroundColor yellow("This script will attempt to install all setup files in a given directory")
+write-host ----------------------------------------------------------
 function getArgument($program){
 
 	$program = (get-command $program).FileVersionInfo.Filedescription
@@ -7,6 +9,10 @@ function getArgument($program){
 	}
 	if($program -match '.msi'){
 	$program = "/qn"
+	return $program
+	}
+	elseif($program -match '.exe'){
+	$program = "/silent"
 	return $program
 	}
 	else{
@@ -98,14 +104,14 @@ $arrayOfValidPrograms = [System.Collections.ArrayList]@()
 		}
 write-host ----------------------------------------------------------
 infoText("$invalidProgramsCounter files have been omitted because they are not valid install files")
-infoText("This will install the  above programs on your PC")
+infoText("This will install the above programs on your PC")
 write-host "Press Enter to continue:"
 read-host
 
 for($i=0; $i -lt $arrayOfValidPrograms.count; $i++){
 	$currentArgument = getArgument($arrayOfValidPrograms[$i])
-
-	write-host -foreGroundColor green "Installing $arrayOfValidPrograms[$i]...Please wait"
+	write-host $arrayOfValidPrograms[$i] $currentArgument
+	write-host -foreGroundColor green "Installing "$arrayOfValidPrograms[$i]"...Please wait"
 	$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
 	write-host -------------------------------------------
 		if($installer.ExitCode -eq 0)
