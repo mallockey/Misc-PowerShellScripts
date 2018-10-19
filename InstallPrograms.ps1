@@ -2,18 +2,21 @@ write-host -foreGroundColor yellow("This script will attempt to install all setu
 write-host ----------------------------------------------------------
 function getArgument($program){
 
-	$program = (get-command $program).FileVersionInfo.Filedescription
-		if($program -match 'Microsoft Setup Bootstrapper'){
+	if((get-command $program).FileVersionInfo.Filedescription -match 'Microsoft Setup Bootstrapper'){
 		$program = "/config config.xml"
 		return $program
 	}
-	if($program -match '.msi'){
+	elseif($program -match 'ninie'){
+	$program = ""
+	return $program
+	elseif($program -match '.msi'){
 	$program = "/qn"
 	return $program
 	}
 	elseif($program -match '.exe'){
 	$program = "/silent"
 	return $program
+	}
 	}
 	else{
 	return $program
@@ -110,19 +113,23 @@ read-host
 
 for($i=0; $i -lt $arrayOfValidPrograms.count; $i++){
 	$currentArgument = getArgument($arrayOfValidPrograms[$i])
-	write-host $arrayOfValidPrograms[$i] $currentArgument
+	write-host $arrayOfValidPrograms[$i]
 	write-host -foreGroundColor green "Installing "$arrayOfValidPrograms[$i]"...Please wait"
-	$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
-	write-host -------------------------------------------
-		if($installer.ExitCode -eq 0)
-				{
-				successText($arrayOfValidPrograms[$i] + " installed successfully!")
-				}
-			else{
-				failText ($arrayOfValidPrograms[$i] +  " did not install successfully, Error Code is: $($installer.ExitCode)")
-				$installFails++
-				}
-				
+		if($currentArgument -eq $null){
+		$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
+		}
+		else{
+		$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
+		write-host -------------------------------------------
+			if($installer.ExitCode -eq 0)
+					{
+					successText($arrayOfValidPrograms[$i] + " installed successfully!")
+					}
+				else{
+					failText ($arrayOfValidPrograms[$i] +  " did not install successfully, Error Code is: $($installer.ExitCode)")
+					$installFails++
+					}
+		}			
 }
 
 write-host -----------------------------------------------------------
