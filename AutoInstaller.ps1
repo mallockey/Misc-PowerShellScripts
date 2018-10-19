@@ -1,14 +1,20 @@
-write-host -foreGroundColor yellow("This script will attempt to install all setup files in a given directory")
-write-host ----------------------------------------------------------
+write-host -foreGroundColor cyan("============================Auto Installer============================")
+write-host -foreGroundColor cyan("This script will attempt to install all setup files in a given directory")
+write-host -foreGroundColor cyan ----------------------------------------------------------
 function getArgument($program){
 
 	if((get-command $program).FileVersionInfo.Filedescription -match 'Microsoft Setup Bootstrapper'){
-		$program = "/config config.xml"
-		return $program
-	}
-	elseif($program -match 'ninie'){
-	$program = ""
+	$program = "/config config.xml"
 	return $program
+	}
+	elseif($program -match 'ninite'){
+	$program = $null
+	return $program
+	}
+	elseif((get-command $program).FileVersionInfo.Filedescription -match 'Google'){
+	$program = "/silent /install"
+	return $program
+	}
 	elseif($program -match '.msi'){
 	$program = "/qn"
 	return $program
@@ -16,7 +22,6 @@ function getArgument($program){
 	elseif($program -match '.exe'){
 	$program = "/silent"
 	return $program
-	}
 	}
 	else{
 	return $program
@@ -66,7 +71,7 @@ function testPath($path)
 
 }
 
-$programsDir = read-host "Enter the path of the install files are include \ at end (Ex. c:\kits\)"
+$programsDir = read-host "Enter the path of the install files are(Ex. c:\kits\)"
 try{
 $validatePath = testPath($programsDir)
 $validateNull = isEmptyString($programsDir)
@@ -105,6 +110,7 @@ $arrayOfValidPrograms = [System.Collections.ArrayList]@()
 			}
 			
 		}
+
 write-host ----------------------------------------------------------
 infoText("$invalidProgramsCounter files have been omitted because they are not valid install files")
 infoText("This will install the above programs on your PC")
@@ -113,26 +119,35 @@ read-host
 
 for($i=0; $i -lt $arrayOfValidPrograms.count; $i++){
 	$currentArgument = getArgument($arrayOfValidPrograms[$i])
-	write-host $arrayOfValidPrograms[$i]
-	write-host -foreGroundColor green "Installing "$arrayOfValidPrograms[$i]"...Please wait"
+	write-host -foreGroundColor green "Installing:"$arrayOfValidPrograms[$i]
 		if($currentArgument -eq $null){
-		$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
+		$installer = start-process $arrayOfValidPrograms[$i] -wait -passthru
+		
+		if($installer.ExitCode -eq 0)
+					{
+					successText($arrayOfValidPrograms[$i] + " installed successfully!")
+					}
+				else{
+					failText ($arrayOfValidPrograms[$i] +  " was unsuccessful.")
+					write-host -foreGroundColor red "ERROR:"$installer.ExitCode
+					$installFails++
+					}
 		}
 		else{
 		$installer = start-process $arrayOfValidPrograms[$i] -argumentlist $currentArgument -wait -passthru
-		write-host -------------------------------------------
+		
 			if($installer.ExitCode -eq 0)
 					{
 					successText($arrayOfValidPrograms[$i] + " installed successfully!")
 					}
 				else{
-					failText ($arrayOfValidPrograms[$i] +  " did not install successfully, Error Code is: $($installer.ExitCode)")
+					failText ($arrayOfValidPrograms[$i] +  " was unsuccessful.")
+					write-host -foreGroundColor red "ERROR:"$installer.ExitCode
 					$installFails++
 					}
-		}			
+		}
+		write-host -------------------------------------------
 }
 
-write-host -----------------------------------------------------------
-write-host -foreGroundColor green "Finished."
 infoText("$installFails programs failed to install.")
 read-host
