@@ -1,3 +1,5 @@
+$ou = read-host "Enter OU of workstations"
+
 try
 {
     $computersArray = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
