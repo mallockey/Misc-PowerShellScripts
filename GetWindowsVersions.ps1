@@ -1,19 +1,20 @@
-try{
-$serversArray = get-content computers.txt -ErrorAction Stop
+try
+{
+    $computersArray = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
 }
-Catch{
-write-host -ForeGroundColor red "Servers.txt cannot be found in directory of script."
-read-host "Press enter to exit"
-exit
+catch
+{
+    write-host -foreGroundColor red "OU not correct please verify OU and rerun."
+    read-host 
+    exit
 }
-
 $win7Count = 0
 $win8Count = 0
 $win10Count = 0
 $totalPC = 0
 
 write-host -foregroundColor yellow "Working...please wait"
-foreach ($servers in $serversArray){
+foreach ($servers in $computersArray){
 if(test-connection -ComputerName $servers -Count 1 -quiet)
 {
 write-host -foreGroundColor green "$servers found, getting OS info"
