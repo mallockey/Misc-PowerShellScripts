@@ -1,5 +1,15 @@
-$scriptLoc = (Get-Location)
-$computersArray = get-content -path $scriptLoc\computers.txt
+$ou = read-host "Enter OU of workstations"
+
+try
+{
+    $computersArray = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
+}
+catch
+{
+    write-host -foreGroundColor red "OU not correct please verify OU and rerun."
+    read-host 
+    exit
+}
 
 	[int]$office2010Count = 0
 	[int]$office2013Count = 0
