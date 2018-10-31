@@ -15,6 +15,10 @@ function getArgument($program){
 	$program = "/silent /install"
 	return $program
 	}
+	elseif((get-command $program).FileVersionInfo.Filedescription -match 'Microsoft Office'){
+	$program = $null
+	return $program
+	}
 	elseif($program -match '.msi'){
 	$program = "/qn"
 	return $program
