@@ -28,6 +28,7 @@ function getArgument($program){
 	return $program
 	}
 	else{
+	$program = $null
 	return $program
 	}
 
