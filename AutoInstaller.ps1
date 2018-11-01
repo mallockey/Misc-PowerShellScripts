@@ -92,7 +92,8 @@ if($programsDir.EndsWith("\") -eq $false){
 	read-host
 	exit
 }
-
+$currentDir = "$psscriptroot"
+copy-item "$psscriptroot\config.xml" -destination $programsDir
 $programsFoundInFolder= get-childitem $programsDir -name
 $totalProgramsInDirectory = $programsFoundInFolder.count
 $indexOfPrograms = 1
