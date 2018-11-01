@@ -75,6 +75,13 @@ function testPath($path)
 	 }
 
 }
+$currentDir = "$psscriptroot"
+if(-Not(test-path "$currentDir\config.xml")){
+	failText("Enter the Config.xml in the directory where the script was run")
+	read-host
+	exit
+
+}
 
 $programsDir = read-host "Enter the path of the install files are(Ex. c:\kits\)"
 try{
