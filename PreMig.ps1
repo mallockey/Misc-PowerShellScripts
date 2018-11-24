@@ -1,4 +1,5 @@
 $currentUserProfile = $env:USERPROFILE
+$mailMigrationFolder = "C:\Kits\MailMigration"
 $currentUserFolder = split-path $currentUserProfile -leaf
 
 function testPath($path)
@@ -92,19 +93,19 @@ write-host "C:\Kits\MailMigration already exists, saving files there"
 #Screenshot Outlook Mail View
 start-process outlook.exe 
 start-sleep -seconds 10
-$fileName = "C:\kits\MailMigration\OutlookView.bmp"
+$fileName = "$mailMigrationFolder\OutlookView.bmp"
 takeScreenShot -fileName $fileName
 
 #Screenshot Outlook Calendar View
 start-process outlook.exe -argumentlist "/select outlook:calendar"
 start-sleep -seconds 10
-$fileName = "C:\kits\MailMigration\OutlookCalendarView.bmp"
+$fileName = "$mailMigrationFolder\OutlookCalendarView.bmp"
 takeScreenShot -fileName $fileName
 
 #Screenshot Outlook ContactsView
 start-process outlook.exe -argumentlist "/select outlook:contacts"
 start-sleep -seconds 10
-$fileName = "C:\kits\MailMigration\OutlookContactsView.bmp"
+$fileName = "$mailMigrationFolder\OutlookContactsView.bmp"
 takeScreenShot -fileName $fileName
 $currentUserProfile = $env:USERPROFILE
 $autoComplete = $currentUserProfile+"\appdata\local\microsoft\outlook\roamcache\"
@@ -113,7 +114,7 @@ $signatures = $currentUserProfile+"\appdata\roaming\microsoft\signatures"
 $autoCompleteTest = testPath($autoComplete)
 if($autoCompleteTest -eq $true){
 	successText ("AutoComplete found, backing up to C:\Kits\MailMigration")
-	copy-item -Path $autoComplete -destination "C:\Kits\MailMigration" -recurse
+	copy-item -Path $autoComplete -destination "$mailMigrationFolder" -recurse
 }
 else{
 	infoText("No RoamCache folder found under $autoComplete")
@@ -123,7 +124,7 @@ else{
 $autoCompleteTest = testPath($signatures)
 if($autoCompleteTest -eq $true){
 	successText ("Signatures found, backing up to C:\Kits\MailMigration")
-	copy-item -Path $signatures -destination "C:\Kits\MailMigration" -recurse
+	copy-item -Path $signatures -destination "$mailMigrationFolder" -recurse
 }
 else{
 	infoText("No Signatures folder found under $signatures")
@@ -137,7 +138,7 @@ $index = 1
 	write-host "No PSTS found."
 	}
 	else{
-		write-host "------------------------------------"
+		write-host "---------------------------------------------"
 		write-host "Found some!"
 		foreach ($pst in $psts){
 		write-host "$index)"$PST.name 
@@ -145,13 +146,13 @@ $index = 1
 		$index++
 		}
 	}
-write-host "----------------------------Results--------------------------------------"
-$postCheckAutoComplete = "C:\kits\MailMigration\roamcache\"
+write-host "--------------------------------Results-----------------------------------------"
+$postCheckAutoComplete = "$mailMigrationFolder\roamcache\"
 $postCheckAutoComplete = postChecks -test $postCheckAutoComplete
 write-host "1)"$postCheckAutoComplete
 
 
-$postCheckSignatures = "C:\kits\MailMigration\Signatures\"
+$postCheckSignatures = "$mailMigrationFolder\Signatures\"
 $postCheckSignatures = postChecks -test $postCheckSignatures
 write-host "2)"$postCheckSignatures
 
