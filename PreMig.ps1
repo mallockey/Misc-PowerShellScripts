@@ -1,3 +1,13 @@
+<#
+Author: Josh Melo
+Last Updated: 11/24/18
+This script is used for backing up user specific data during a mail migration.
+AutoComplete, Signatures, (Mailbox Rules will be coming soon)
+and screenshots of Outlook Mail tab, Outlook Calendar tab, and Outlook Contacts tab
+are automaticlly taken and stored in $mailMigrationFolder. PST files wil be checked for
+under the users folder and the location will be noted.
+#>
+
 $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration"
 $currentUserFolder = split-path $currentUserProfile -leaf
