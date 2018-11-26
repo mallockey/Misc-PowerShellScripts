@@ -1,3 +1,10 @@
+<#
+Author: Josh Melo
+Last Updated: 11/25/18
+This script wil attempt to install all the installer files in a given a directory. It is hardcoded to look for a config.xml file
+for any Volume Licensed office install. It also has the correct argument for Google Chrome. Most of these checks are based on the file name
+matching the product so please don't rename the setup files names.
+#>
 write-host -foreGroundColor cyan("============================Auto Installer============================")
 write-host -foreGroundColor cyan("This script will attempt to install all setup files in a given directory")
 write-host -foreGroundColor cyan ----------------------------------------------------------
