@@ -1,3 +1,10 @@
+<#
+Author: Josh Melo
+Last Updated: 11/25/18
+This sript will check that Proofpoint outlook plugin is installed on each PC in a given workstation OU.
+It will only check that Proofpoint folder exists on C:\Program Files and C:\Program Files (x86)
+
+#>
 try{
 import-module activedirectory -erroraction stop
 }
