@@ -1,3 +1,8 @@
+<#
+Author: Josh Melo
+Last Updated: 11/26/18
+This script will copy a single file to all the PCs in the Computers.txt file.
+#>
 try{
 $computersArray = get-content computers.txt
 }
