@@ -9,8 +9,8 @@ $grouparray = get-childitem -path AD:\$ou | select -expandproperty name
     $group = $group.replace("\","_")
     }
 
-  write-output "Group name:" $group | out-file "C:\users\eciadmin\desktop\securitygroups.csv" -append
-  get-adgroupmember -identity $group | select name | sort-object name | out-file "C:\users\eciadmin\desktop\securitygroups.csv" -append
-  write-output "==================================================" | out-file "C:\users\eciadmin\desktop\securitygroups.csv" -append
+  write-output "Group name:" $group | out-file "C:\users\desktop\securitygroups.csv" -append
+  get-adgroupmember -identity $group | select name | sort-object name | out-file "C:\users\desktop\securitygroups.csv" -append
+  write-output "==================================================" | out-file "C:\users\desktop\securitygroups.csv" -append
   }
 read-host "Completed"
