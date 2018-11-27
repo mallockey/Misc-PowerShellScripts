@@ -69,25 +69,24 @@ foreach($rule in $rules){
 
 }
 function takeScreenShot{
-
+	write-host "---------------------------------------------"
 	Param(
 	$fileName
 	)
-    write-host "Please have Outlook open on screen and maximized."
-    write-host "Close any expanded mailboxes/calendars/contacts to allow maximum view"
+        write-host "Please have Outlook open on screen and maximized."
+        write-host "Close any expanded mailboxes/calendars/contacts to allow maximum view"
 	write-host "---------------------------------------------"
-    $i = 16
-    while($i -ge 0)
-    {
-	$i--
-        if($i -eq 0){
-        write-host "SCREENSHOT TIME"
-        break
+        $i = 16
+        while($i -ge 0)
+        {
+	   $i--
+	   if($i -eq 0){
+           write-host "SCREENSHOT TIME"
+	   break
+	   }
+        start-sleep -seconds 1
+        write-host "Screenshot in: $i seconds"
         }
-
-    start-sleep -seconds 1
-    write-host "Screenshot in: $i seconds"
-    }
 	Add-Type -AssemblyName System.Windows.Forms
 	Add-type -AssemblyName System.Drawing
 
@@ -146,8 +145,8 @@ if($testMailMigrationFolder -eq $false){
 else{
 infoText("C:\Kits\MailMigration already exists, saving files there")
 }
-
-start-sleep -seconds 5
+infoText("Loading Outlook to take screenshots...")
+start-sleep -seconds 7
 #Screenshot Outlook Mail View
 start-process outlook.exe 
 $fileName = "$mailMigrationFolder\OutlookView.bmp"
