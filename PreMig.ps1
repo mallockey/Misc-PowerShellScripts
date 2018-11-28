@@ -108,7 +108,7 @@ function takeScreenShot{
 					}
 			   
 					   if($i -eq 0){
-					   write-host -foregroundColor red "SCREENSHOT TIME! CLICK!"
+					   write-host -foregroundColor red "SCREENSHOT TIME!"
 					   break
 					   }
        
