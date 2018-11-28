@@ -6,7 +6,7 @@ write-output "
 -----------------------------------------------------------------------------
 This script is used for backing up user specific data during a mail migration.
 AutoComplete, Signatures, and screenshots of Outlook Mail tab, 
-Outlook Calendar tab, and Outlook Contacts tab are automaticlly taken 
+Outlook Calendar tab, and Outlook Contacts tab are automatically taken 
 and stored in C:\Kits\MailMigration. Mailbox rules will be displayed in the script and 
 exported to a CSV WITHOUT CONDITIONS. PST files will be checked for under the
 users folder and the location will be noted.
