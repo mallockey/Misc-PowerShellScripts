@@ -1,20 +1,22 @@
 <#
 Author: Josh Melo
-Last Updated: 11/24/18
+Last Updated: 11/28/18
 #>
 write-output "
 -----------------------------------------------------------------------------
 This script is used for backing up user specific data during a mail migration.
 AutoComplete, Signatures, and screenshots of Outlook Mail tab, 
-Outlook Calendar tab, and Outlook Contacts tab
-are automaticlly taken and stored in C:\Kits\MailMigration. PST files 
-wil be checked for under the users folder and the location will be noted.
+Outlook Calendar tab, and Outlook Contacts tab are automaticlly taken 
+and stored in C:\Kits\MailMigration. Mailbox rules will be displayed in the script and 
+exported to a CSV WITHOUT CONDITIONS. PST files will be checked for under the
+users folder and the location will be noted.
 -----------------------------------------------------------------------------"
 
 start-sleep -seconds 5
 
 $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration"
+
 $currentUserFolder = split-path $currentUserProfile -leaf
 
 function infoText($output)
@@ -47,6 +49,17 @@ function testPath($path)
 
 }
 
+
+$testMail = testPath($mailMigrationFolder)
+	if($testMail -eq $true)
+	{
+	failText("MailMigration folder already exists in C:\Kits")
+	failText("Please rename existing MailMigration folder and rerun script")
+	read-host
+	exit
+	}
+
+
 function getRules(){
 #This code was taken from Scripting Guy blog here:
 #https://blogs.technet.microsoft.com/heyscriptingguy/2009/12/15/hey-scripting-guy-how-can-i-tell-which-outlook-rules-i-have-created/
@@ -68,24 +81,38 @@ foreach($rule in $rules){
 }
 
 }
-function takeScreenShot{
 	write-host "---------------------------------------------"
+function takeScreenShot{
+
 	Param(
 	$fileName
 	)
         write-host "Please have Outlook open on screen and maximized."
         write-host "Close any expanded mailboxes/calendars/contacts to allow maximum view"
-	write-host "---------------------------------------------"
+		write-host "---------------------------------------------"
         $i = 16
         while($i -ge 0)
         {
-	   $i--
-	   if($i -eq 0){
-           write-host "SCREENSHOT TIME"
-	   break
-	   }
-        start-sleep -seconds 1
-        write-host "Screenshot in: $i seconds"
+		 $i--
+			if($i -le 15 -and $i -ge 10){
+			start-sleep -seconds 1
+			write-host -foreGroundColor green "Screenshot in: $i seconds"
+			}
+				if($i -lt 10 -and $i -ge 5){
+				start-sleep -seconds 1
+				write-host -foreGroundColor yellow "Screenshot in: $i seconds"
+				}
+					if($i -lt 5 -and $i -gt 0){
+					start-sleep -seconds 1
+					write-host -foreGroundColor red "Screenshot in: $i seconds"
+					}
+			   
+					   if($i -eq 0){
+					   write-host -foregroundColor red "SCREENSHOT TIME! CLICK!"
+					   break
+					   }
+       
+        
         }
 	Add-Type -AssemblyName System.Windows.Forms
 	Add-type -AssemblyName System.Drawing
@@ -170,7 +197,7 @@ $autoCompleteTest = testPath($autoComplete)
 if($autoCompleteTest -eq $true){
 	successText ("AutoComplete found, backing up to C:\Kits\MailMigration")
 	copy-item -Path $autoComplete -destination "$mailMigrationFolder" -recurse
-	write-host "---------------------------------------------"
+	write-host "------------------------------------------------------------------"
 }
 else{
 	infoText("No RoamCache folder found under $autoComplete")
@@ -180,13 +207,13 @@ $autoCompleteTest = testPath($signatures)
 if($autoCompleteTest -eq $true){
 	successText ("Signatures found, backing up to C:\Kits\MailMigration")
 	copy-item -Path $signatures -destination "$mailMigrationFolder" -recurse
-	write-host "---------------------------------------------"
+	write-host "------------------------------------------------------------------"
 }
 
 else{
 	infoText("No Signatures folder found under $signatures")
 }
-write-host "---------------------------------------------"
+write-host "------------------------PST Check------------------------------------"
 write-host "Checking for PSTS under $currentUserProfile"
 $PSTS = Get-ChildItem "C:\Users\$currentUserFolder" -Recurse -Filter '*.pst' 
 $index = 1
