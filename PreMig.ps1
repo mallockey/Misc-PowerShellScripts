@@ -18,24 +18,20 @@ $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration"
 $currentUserFolder = split-path $currentUserProfile -leaf
 
-function infoText($output)
-{
+function infoText($output){
 	$output = write-host -foreGroundColor yellow "INFO:"$output
 	return $output
 }
-
-function failText($output)
-	{
+function failText($output){
 	$output = write-host -ForeGroundColor red "ERROR:"$output
 	return $output
-	}
+}
 function successText($output){
 	$output = write-host -foreGroundColor green "SUCCESS:"$output
 	return $output
 }
 
-function testPath($path)
-{
+function testPath($path){
  $path = test-path $path
 	 if($path -eq $true)
 	 {
@@ -60,21 +56,25 @@ $testMail = testPath($mailMigrationFolder)
 function getRules(){
 #This code was taken from Scripting Guy blog here:
 #https://blogs.technet.microsoft.com/heyscriptingguy/2009/12/15/hey-scripting-guy-how-can-i-tell-which-outlook-rules-i-have-created/
-
-Add-Type -AssemblyName microsoft.office.interop.outlook 
-$olFolders = "Microsoft.Office.Interop.Outlook.OlDefaultFolders" -as [type]
-$outlook = New-Object -ComObject outlook.application
-$namespace  = $Outlook.GetNameSpace("mapi")
-$folder = $namespace.getDefaultFolder($olFolders::olFolderInbox)
-$rules = $outlook.session.DefaultStore.GetRules()
-$rules |
-Sort-Object -Property ExecutionOrder |
-Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
-$rules | export-csv "$mailMigrationFolder\Rules.csv"
-foreach($rule in $rules){
-	if($rule.IsLocalRule -eq $true){
-	write-host $rule "is local. Please consult PTM"
+try{
+	Add-Type -AssemblyName microsoft.office.interop.outlook 
+	$olFolders = "Microsoft.Office.Interop.Outlook.OlDefaultFolders" -as [type]
+	$outlook = New-Object -ComObject outlook.application
+	$namespace  = $Outlook.GetNameSpace("mapi")
+	$folder = $namespace.getDefaultFolder($olFolders::olFolderInbox)
+	$rules = $outlook.session.DefaultStore.GetRules()
+	$rules |
+	Sort-Object -Property ExecutionOrder |
+	Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
+	$rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
+	foreach($rule in $rules){
+		if($rule.IsLocalRule -eq $true){
+		write-host $rule "is local. Please consult PTM"
+		}
 	}
+}
+catch{
+failText("Unable to get Outlook rules")
 }
 
 }
@@ -212,13 +212,13 @@ $index = 1
 	write-host "No PSTS found."
 	}
 	else{
-		write-host "---------------------------------------------"
-		write-host "Found some!"
-            foreach ($pst in $psts){
-            write-host "$index)"$PST.name 
-            write-host $PST.directory
-            $index++
-		}
+	    write-host "---------------------------------------------"
+	    write-host "Found some!"
+		 foreach ($pst in $psts){
+		 write-host "$index)"$PST.name 
+		 write-host $PST.directory
+		 $index++
+		 }
 	}
 
 write-host "--------------------------Checking for Rules------------------------------"
