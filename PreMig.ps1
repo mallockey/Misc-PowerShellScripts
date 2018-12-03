@@ -16,7 +16,6 @@ start-sleep -seconds 5
 
 $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration"
-
 $currentUserFolder = split-path $currentUserProfile -leaf
 
 function infoText($output)
@@ -49,7 +48,6 @@ function testPath($path)
 
 }
 
-
 $testMail = testPath($mailMigrationFolder)
 	if($testMail -eq $true)
 	{
@@ -58,7 +56,6 @@ $testMail = testPath($mailMigrationFolder)
 	read-host
 	exit
 	}
-
 
 function getRules(){
 #This code was taken from Scripting Guy blog here:
@@ -81,7 +78,7 @@ foreach($rule in $rules){
 }
 
 }
-	write-host "---------------------------------------------"
+write-host "---------------------------------------------"
 function takeScreenShot{
 
 	Param(
@@ -162,16 +159,10 @@ function postChecks{
 }
 
 #START!
-$testMailMigrationFolder = testPath("C:\Kits\MailMigration")
-if($testMailMigrationFolder -eq $false){
-	infoText("Creating C:\Kits\MailMigration Folder")
-	#Only in variable to silently make the directory
-	$mailDirectory = new-item -ItemType directory -Path C:\kits\MailMigration
+infoText("Creating C:\Kits\MailMigration Folder")
+#Only in variable to silently make the directory
+$mailDirectory = new-item -ItemType directory -Path C:\kits\MailMigration
 	
-}
-else{
-infoText("C:\Kits\MailMigration already exists, saving files there")
-}
 infoText("Loading Outlook to take screenshots...")
 start-sleep -seconds 7
 #Screenshot Outlook Mail View
