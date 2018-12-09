@@ -8,12 +8,12 @@ exit
 }
 $currentPath = Get-Location
 $currentPath = $currentPath.path
-$tabName = "DiskDrives"
+$tableName = "DiskDrives"
 
 write-host "Getting disk drive space from computers in computers.txt"
 
 #Create Table object
-$table = New-Object system.Data.DataTable “$tabName”
+$table = New-Object system.Data.DataTable “$tableName”
 
 #Define Columns
 $col1 = New-Object system.Data.DataColumn ComputerName,([string])
@@ -54,13 +54,13 @@ foreach($server in $servers){
 			$driveLetter = $drive.DeviceID
 			[int]$percentFree = ($freeSpace / $totalSpace) * 100
 
-			if($percentFree -lt 10)
-			{
-			$diskStatus = "Disk Space LOW"
-			}
-			else{
-			$diskStatus = "OK"
-			}
+				if($percentFree -lt 10)
+				{
+				$diskStatus = "LOW"
+				}
+				else{
+				$diskStatus = "OK"
+				}
 			[string]$freeSpace += " GBs"
 			[string]$totalSpace += " GBs"
 			[string]$percentFree +="%"
@@ -78,7 +78,7 @@ foreach($server in $servers){
 		}
 	}
 	else{
-	write-host $server is not online
+	write-host -foregroundcolor yellow $server is not online
 	}
 }
 
