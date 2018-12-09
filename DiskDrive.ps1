@@ -63,6 +63,7 @@ foreach($server in $servers){
 			}
 			[string]$freeSpace += " GBs"
 			[string]$totalSpace += " GBs"
+			[string]$percentFree +="%"
 			$row = $table.NewRow()
 			$row.DriveLetter = "$driveLetter" 
 			$row.DriveLabel = "$driveName" 
