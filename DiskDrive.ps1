@@ -53,7 +53,6 @@ foreach($server in $servers){
 			$totalSpace = [int]($drive.Size / 1gb)
 			$driveLetter = $drive.DeviceID
 			[int]$percentFree = ($freeSpace / $totalSpace) * 100
-
 				if($percentFree -lt 10)
 				{
 				$diskStatus = "LOW"
