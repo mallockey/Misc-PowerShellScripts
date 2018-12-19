@@ -1,10 +1,19 @@
 try{
-$servers = get-content computers.txt -erroraction stop
+import-module ActiveDirectory -erroraction stop
 }
 catch{
-write-host -foregroundcolor red "Please include computers.txt in directory of script"
-read-host
+write-host -foregroundcolor red "Run from a domain controller"
 exit
+}
+try
+{
+    $servers = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
+}
+catch
+{
+    write-host -foreGroundColor red "OU not correct please verify OU and rerun."
+    read-host 
+    exit
 }
 $currentPath = Get-Location
 $currentPath = $currentPath.path
