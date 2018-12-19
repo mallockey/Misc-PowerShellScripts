@@ -5,6 +5,7 @@ catch{
 write-host -foregroundcolor red "Run from a domain controller"
 exit
 }
+$ou = read-host "Please enter the OU where workstations/servers are"
 try
 {
     $servers = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
