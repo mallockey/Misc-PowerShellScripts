@@ -111,7 +111,7 @@ foreach ($drive in $drives){
     $row.Info = "Mapped Drive"
     $driveLetter = $drive.Name
     $row.Value1 ="$driveLetter"
-$row.Value2 = $drive.providername
+    $row.Value2 = $drive.providername
     $table.Rows.Add($row)   
 
     }
@@ -155,12 +155,12 @@ $usersFoldersArray += $usersMusic
     foreach($folder in $usersFoldersArray){
     
     $sum = getSizeOfFolder $folder
-
     $row = $table.NewRow()
     $row.Info ="User Profile Path"
     $row.Value1="$folder"
     $row.value2 = "$sum"
     $table.rows.Add($row)
+    
     }
     
 $currentDefaultBrowser = getDefaultBrowser
