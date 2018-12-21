@@ -120,7 +120,4 @@ elseif ($choice -eq 3){
 	$table | export-csv $currentPath"\Diskspace.csv" -noTypeInformation
 	$table | convertto-HTML -prop ComputerName, DriveLetter, DriveLabel, FreeSpace, TotalSpace, PercentFree, Status -head $Header -Title "Disk Drive Space" | out-file $currentPath"\Diskspace.html"
 }
-else{
-	exit
-}
 
