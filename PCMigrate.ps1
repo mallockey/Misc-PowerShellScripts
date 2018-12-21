@@ -120,7 +120,7 @@ $PSTS = Get-ChildItem $currentUserProfile -Recurse -ErrorAction silentlycontinue
 $totalPSTS = 0
 write-host "Getting PST info..."
     if($PSTS -eq $null){
-    
+    write-host "No PSTs found"
     }
     else{
         foreach ($pst in $psts){
