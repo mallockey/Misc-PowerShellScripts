@@ -82,7 +82,12 @@ function getDefaultBrowser{
 		if($testBookmarks -eq $false){
 		$createChromeFolder = new-item -itemtype directory -path "C:\Kits\ChromeBookmarks"
 		}
+    try{
     $chromeBookmarks = "$currentUserProfile\AppData\Local\Google\Chrome\User Data\Default\Bookmarks"
+    }
+    catch{
+    write-host "Chrome is default but no bookmarks found"
+    }
     Copy-Item -Path $chromeBookmarks -destination "C:\Kits\ChromeBookmarks\"
     $defaultBrowser = "Google Chrome"       
     }
