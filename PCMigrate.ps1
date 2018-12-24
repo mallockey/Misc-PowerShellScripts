@@ -1,12 +1,20 @@
-
-#Create Table object
+<#
+Author: Josh Melo - joshuamelo1126@gmail.com
+Last Updated: 12/23/18
+Run this script as the user whose profile is being migrated. This script is used for 
+collecting data for a user before migrating domains/PCs. This is used as reassurance to know
+what data(if) was missing after the migration.
+#>
+#Variable Declarations
 $currentLocation = get-location 
 $currentLocation = $currentLocation.path
 $userDomain = $env:userDomain
 $userName = $env:username
 $currentUserProfile = $env:USERPROFILE
-$table = New-Object system.Data.DataTable “$userInfo”
+#Test paths
+$testKits = Test-Path -path "C:\Kits"
 
+$table = New-Object system.Data.DataTable “$userInfo”
 $col1 = New-Object system.Data.DataColumn Info,([string])
 $col2 = New-Object system.Data.DataColumn Value1,([string])
 $col3 = New-Object system.Data.DataColumn Value2,([string])
@@ -19,8 +27,8 @@ $table.columns.add($col4)
 
 $row = $table.NewRow()
 $row.Info ="UserInfo"
-$row.Value1="Domain: $userDomain"
-$row.Value2="Username: $userName"
+$row.Value1=$userDomain
+$row.Value2=$userName
 $table.rows.Add($row)
 
 function getSizeOfFolder{
@@ -42,55 +50,66 @@ function getSizeOfFolder{
         $total =  [math]::Round($total / 1mb,2)
         return [String]$total += "MB"
     }
-    elseif($total -gt 1000){
-        $total = [math]::Round($total / 1kb,2)
-        return [String]$total += "KB"
+    else{
+        return [String]$total = "<1MB"
 	}
-	else{
-		return [String]$total+="Bytes" 
-	}
-    
+	
 }
 
-$testKits = Test-Path -path "C:\Kits"
 if($testKits -eq $false){
     write-host("-------------------------")
     $createKits = new-item -ItemType directory -Path C:\kits\
 }
-#Queries Registry value to determine default web browser.
-#Backs up Bookmarks to C:\Kits\ for each browser
+#Queries Registry value to determine default web browser basedon ProgID value.
 function getDefaultBrowser{
     write-host "Getting Default Browser"
-try{
-$defaultBrowser = Get-Itemproperty -path hkcu:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\ -ErrorAction stop | select -expandproperty Progid
-}
-catch{
-    $defaultBrowser = "Not set"
-    return $defaultBrowser
-}
+	try{
+	$defaultBrowser = Get-Itemproperty -path hkcu:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\ -ErrorAction stop | select -expandproperty Progid
+	}
+	catch{
+		$defaultBrowser = "Not set"
+		return $defaultBrowser
+	}
     if($defaultBrowser -like "*Chrome*"){
-        $defaultBrowser = "Google Chrome"       
+    $testChrome = test-path -path "C:\Kits\ChromeBookmarks"
+		if($testBookmarks -eq $false){
+		$createChromeFolder = new-item -itemtype directory -path "C:\Kits\ChromeBookmarks"
+		}
+    $chromeBookmarks = "$currentUserProfile\AppData\Local\Google\Chrome\User Data\Default\Bookmarks"
+    Copy-Item -Path $chromeBookmarks -destination "C:\Kits\ChromeBookmarks\"
+    $defaultBrowser = "Google Chrome"       
     }
     elseif ($defaultBrowser -like "*FireFox*"){
-    write-host "Default Browser is Mozila FireFox"
+    $testFireFox = test-path -path "C:\Kits\FireFoxBookmarksBackup"
+		if($testFireFox -eq $false){
+			$createFireFoxFolder = new-item -itemtype directory -path "C:\Kits\FireFoxBookmarksBackup"
+		}
+    copy-item "$currentUserProfile\AppData\Roaming\Mozilla\Firefox\Profiles" -recurse -destination "C:\kits\FirefoxBookmarksBackup"
     $defaultBrowser = "Mozilla FireFox"
     }
-    elseif ($defaultBrowser -like "*IE*"){
-    write-host "Default Web Browser is Internet Explorer" 
-    $defaultBrowser = "Internet Explorer"
-    }
     elseif($defaultBrowser -like "*APPX*"){
-    write-host "Default Web Browser is Microsoft Edge"
     $defaultBrowser = "Microsoft Edge"
     }
+    elseif ($defaultBrowser -like "*IE*" -or $defaultBrowser -like "*HTML*"){
+    $testIE = test-path -path "C:\Kits\IEBookmarksBackup"
+		if($testIE -eq $false){
+		$createIEFolder = new-item -itemtype directory -path "C:\Kits\IEBookmarksBackup"
+		}
+    copy-item $usersFavorites -recurse -destination $createIEFolder
+    $defaultBrowser = "Internet Explorer"
+    }
     else{
-    write-host "Default Browser Unknown"
+    $defaultBrowser ="Default Browser Unknown"
     }
     return $defaultBrowser
 }
 
-$printerArray = Get-WmiObject -class win32_printer 
+#Gets installed printers on PC, excludes Fax, anything containing Microsoft and Send
+$printerArray = Get-WmiObject -class win32_printer | where-object {$_.Name -notlike "*Fax*" -and $_.Name -notlike "*Microsoft*" -and $_.Name -notlike "*send*"} 
 write-host "Getting Printer info..."
+if($printerArray -eq $null){
+    write-host "No installed printers."
+}
     foreach($printer in $printerArray){
         $row = $table.NewRow()
         $printerName = $printer.Name #DONT KNOW WHY THIS IS NECESSARY BUT OTHERWISE I GET CIM INFO WITHOUT PUTTING IN VARIABLE
@@ -116,11 +135,12 @@ foreach ($drive in $drives){
 
     }
 
+#Looks through users profile for .PSTs
 $PSTS = Get-ChildItem $currentUserProfile -Recurse -ErrorAction silentlycontinue -Filter '*.pst' 
 $totalPSTS = 0
 write-host "Getting PST info..."
     if($PSTS -eq $null){
-    write-host "No PSTs found"
+    write-host "No PSTs found under $currentUserProfile"
     }
     else{
         foreach ($pst in $psts){
@@ -135,7 +155,7 @@ write-host "Getting PST info..."
         $table.Rows.Add($row)   
         }
     }
-    
+#Finds users profile folders in registry
 $usersFoldersInRegistry = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
 $usersFoldersArray = @()
 write-host "Getting user folder info..."
@@ -152,15 +172,13 @@ $usersFoldersArray += $usersPictures
 $usersMusic = $usersFoldersInRegistry."My Music"
 $usersFoldersArray += $usersMusic
 
-    foreach($folder in $usersFoldersArray){
-    
+    foreach($folder in $usersFoldersArray){  
     $sum = getSizeOfFolder $folder
     $row = $table.NewRow()
     $row.Info ="User Profile Path"
     $row.Value1="$folder"
     $row.value2 = "$sum"
     $table.rows.Add($row)
-    
     }
     
 $currentDefaultBrowser = getDefaultBrowser
