@@ -4,6 +4,13 @@ Last Updated: 12/23/18
 Run this script as the user whose profile is being migrated. This script is used for 
 collecting data for a user before migrating domains/PCs. This is used as reassurance to know
 what data(if) was missing after the migration.
+The following is checked for and exported to a CSV:
+1)Username/Domain
+2)Default Web Browser(I.E. & Google Chrome will automatically backup bookmarks.
+3)Printers(checks for default. Send to PDF/Microsoft/Fax are omitted.
+4)Mapped drives. Letters and locations
+5)*PST files under the users profile ONLY. The name and path are noted in the table*
+6)User's profile path via registry and size of each folder				
 #>
 #Variable Declarations
 $currentLocation = get-location 
