@@ -1,8 +1,8 @@
 $subnetMasks = @{
 
 	255 = 8
-        254 = 7
-        252 = 6
+    254 = 7
+    252 = 6
 	248 = 5
 	240 = 4
 	224 = 3
@@ -29,17 +29,19 @@ $numberOfRanges,
 $increment
 )
 $ranges = [System.Collections.ArrayList]@()
-    for($i = 0; $i -lt $numberOfRanges; $i++){
-        if($i -gt 0){
-	$firstBound =  $increment * $i
-	$endBound = $increment * ($i + 1)
-	$ranges.add($firstBound..$endBound)
+	for($i = 0; $i -lt $numberOfRanges; $i++){
+	  
+		if($i -gt 0){
+		$firstBound =  $increment * $i
+		$endBound = $increment * ($i + 1)
+		$ranges.add($firstBound..$endBound)
+		}
+		else{
+		$ranges.Add(0..$increment)
+		}
+		
 	}
-	else{
-	$ranges.Add(0..$increment)
-	}
-    }
-return $ranges
+	return $ranges
 }
 
 #Gets which octet is incrementing by based on it not being 255 or 0
@@ -57,16 +59,17 @@ function getPosition{
 }
 
 function getIncrement{
-    Param(
-    $octet
-    )
-$keys = $subnetIncrements.keys
-    foreach($key in $keys){
-        if($octet -eq $key){
-	$increment = $subnetIncrements.item($key)
+	Param(
+	$octet
+	)
+	$keys = $subnetIncrements.keys
+	foreach($key in $keys){
+	
+		if($octet -eq $key){
+		$increment = $subnetIncrements.item($key)
+		}
 	}
-    }
-return $increment
+	return $increment
 	
 }
 #Gets the number of subnet bits based on dictionary values. This is only the number of bits that have been subnetted. Not the total.
@@ -110,6 +113,15 @@ function makeArray{
 	)
 	$returnedArray = [System.Collections.ArrayList]@()
 	$returnedArray = $array.split(".")
+
+	foreach($octet in $returnedArray){
+	
+		if ([Int]$octet -gt 255 -or [Int]$octet -lt 0){
+			write-host "IP Address or Subnet Mask was not in the correct format."
+			exit
+		}
+		
+	}
 	
 	return $returnedArray
 }
@@ -164,8 +176,33 @@ function buildTable{
 			$table | format-List
 }
 
-$IPAddress = "10.45.22.1"
-$subnetMask = "255.255.255.0"
+$IPAddress = read-host "Enter IP Address(Ex.10.5.45.20)"
+$subnetMask = read-host "Enter Subnet Mask(Ex.255.255.255.128)"
+
+$IPcount = 0
+for($i=0; $i -lt $ipaddress.length -1; $i++){
+	if($IPaddress[$i] -eq "."){	
+	$IPcount++
+	}
+}
+
+if($IPcount -ne 3){
+	write-host $IPAddress "is not in the correct format. Please rerun script"
+	exit
+}
+
+$subnetCount = 0
+for($i=0; $i -lt $subnetMask.length -1; $i++){
+	if($subnetMask[$i] -eq "."){	
+	$subnetCount++
+	}
+}
+
+if($subnetCount -ne 3){
+	write-host $IPAddress "is not in the correct format. Please rerun script"
+	exit
+}
+
 
 $IPArray = makeArray $IPAddress
 $subnetArray = makeArray $subnetMask
