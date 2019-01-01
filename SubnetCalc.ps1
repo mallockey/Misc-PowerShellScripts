@@ -1,8 +1,8 @@
 $subnetMasks = @{
 
 	255 = 8
-    254 = 7
-    252 = 6
+        254 = 7
+        252 = 6
 	248 = 5
 	240 = 4
 	224 = 3
@@ -29,19 +29,17 @@ $numberOfRanges,
 $increment
 )
 $ranges = [System.Collections.ArrayList]@()
-	for($i = 0; $i -lt $numberOfRanges; $i++){
-	  
-		if($i -gt 0){
-		$firstBound =  $increment * $i
-		$endBound = $increment * ($i + 1)
-		$ranges.add($firstBound..$endBound)
-		}
-		else{
-		$ranges.Add(0..$increment)
-		}
-		
+    for($i = 0; $i -lt $numberOfRanges; $i++){
+        if($i -gt 0){
+	$firstBound =  $increment * $i
+	$endBound = $increment * ($i + 1)
+	$ranges.add($firstBound..$endBound)
 	}
-	return $ranges
+	else{
+	$ranges.Add(0..$increment)
+	}
+    }
+return $ranges
 }
 
 #Gets which octet is incrementing by based on it not being 255 or 0
@@ -59,17 +57,16 @@ function getPosition{
 }
 
 function getIncrement{
-	Param(
-	$octet
-	)
-	$keys = $subnetIncrements.keys
-	foreach($key in $keys){
-	
-		if($octet -eq $key){
-		$increment = $subnetIncrements.item($key)
-		}
+    Param(
+    $octet
+    )
+$keys = $subnetIncrements.keys
+    foreach($key in $keys){
+        if($octet -eq $key){
+	$increment = $subnetIncrements.item($key)
 	}
-	return $increment
+    }
+return $increment
 	
 }
 #Gets the number of subnet bits based on dictionary values. This is only the number of bits that have been subnetted. Not the total.
