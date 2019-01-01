@@ -21,6 +21,8 @@ $subnetIncrements = @{
 	254 = 2
 	255 = 1
 }
+
+#Gets the range of each subnet based on what it is incrementing by.
 function getRange{
 Param(
 $numberOfRanges,
@@ -42,7 +44,7 @@ $ranges = [System.Collections.ArrayList]@()
 	return $ranges
 }
 
-
+#Gets which octet is incrementing by based on it not being 255 or 0
 function getPosition{
     Param(
         $subnetMask
@@ -70,7 +72,8 @@ function getIncrement{
 	return $increment
 	
 }
-
+#Gets the number of subnet bits based on dictionary values. This is only the number of bits that have been subnetted. Not the total.
+#Ex. If it was a /9 it would return 1 as only one bit is being borrowed from the second octet.
 function getSubnetBits{
 
 	Param(
@@ -84,21 +87,22 @@ function getSubnetBits{
 		
 	return $numberOfNetworkBits
 }
+
+#Finds the current range based on the position where the subnet increases and the IP address
 function getCurrentRange{
 	Param(
 	$ranges,
 	$IPArray,
 	$position
-	)
-	
+	)	
 	
 	foreach($range in $ranges){
-		if($range -eq $IPArray[$position]){
-		
-		$currentRange = $range
+		for($i = 0; $i -lt $range.length; $i++){
+			if($range[$i] -eq $IPArray[$position]){
+				$currentRange = $range
+			}
 		}
-		
-	}
+	}	
 	return $currentRange
 		
 }
@@ -125,6 +129,29 @@ function buildTable{
 		$hostsPerNetwork,
 		$slashNotation
 	)
+			$table = New-Object system.Data.DataTable “$tableName”
+
+			#Define Columns
+			$col1 = New-Object system.Data.DataColumn IPAddress,([string])
+			$col2 = New-Object system.Data.DataColumn SubnetMask,([string])
+			$col3 = New-Object system.Data.DataColumn NetworkAddress,([string])
+			$col4 = New-Object system.Data.DataColumn BroadcastAddress,([string])
+			$col5 = New-Object system.Data.DataColumn NetworkBits,([string])
+			$col6 = New-Object system.Data.DataColumn HostBits,([string])
+			$col7 = New-Object system.Data.DataColumn NumberOfNetworks,([string])
+			$col8 = New-Object system.Data.DataColumn HostsPerNetwork,([string])
+			$col9 = New-Object system.Data.DataColumn SlashNotation,([string])
+	
+			$table.columns.add($col1)
+			$table.columns.add($col2)
+			$table.columns.add($col3)
+			$table.columns.add($col4)
+			$table.columns.add($col5)
+			$table.columns.add($col6)
+			$table.columns.add($col7)
+			$table.columns.add($col8)
+			$table.columns.add($col9)
+
 			$row = $table.NewRow()
  			$row.IPAddress = "$IPArray" 
 			$row.SubnetMask = "$subnetArray" 
@@ -140,45 +167,20 @@ function buildTable{
 			$table | format-List
 }
 
-$table = New-Object system.Data.DataTable “$tableName”
-
-#Define Columns
-$col1 = New-Object system.Data.DataColumn IPAddress,([string])
-$col2 = New-Object system.Data.DataColumn SubnetMask,([string])
-$col3 = New-Object system.Data.DataColumn NetworkAddress,([string])
-$col4 = New-Object system.Data.DataColumn BroadcastAddress,([string])
-$col5 = New-Object system.Data.DataColumn NetworkBits,([string])
-$col6 = New-Object system.Data.DataColumn HostBits,([string])
-$col7 = New-Object system.Data.DataColumn NumberOfNetworks,([string])
-$col8 = New-Object system.Data.DataColumn HostsPerNetwork,([string])
-$col9 = New-Object system.Data.DataColumn SlashNotation,([string])
-
-$table.columns.add($col1)
-$table.columns.add($col2)
-$table.columns.add($col3)
-$table.columns.add($col4)
-$table.columns.add($col5)
-$table.columns.add($col6)
-$table.columns.add($col7)
-$table.columns.add($col8)
-$table.columns.add($col9)
-
-
-$IPAddress = "10.128.0.0"
-$subnetMask = "255.255.252.0"
+$IPAddress = "10.45.22.1"
+$subnetMask = "255.255.255.0"
 
 $IPArray = makeArray $IPAddress
 $subnetArray = makeArray $subnetMask
-
 
 $networkAddress = makeArray $IPAddress
 $broadcastAddress = makeArray $IPAddress
 
 #Gets number of network bits
-
 foreach($octet in $subnetArray){
 	$numberOfNetworkBits += getSubnetBits $octet
 }
+#Classful Routing based on if number of network bits is disvisible by 8 without a remainder.
 if($numberofNetworkBits % 8 -eq 0){
 	if($subnetArray[0] -eq 255 -and $subnetArray[1] -eq 255 -and $subnetArray[2] -eq 255){
 	$numberOfHostBits = 8
@@ -214,12 +216,21 @@ if($numberofNetworkBits % 8 -eq 0){
 	$networkAddress[2] = 0
 	$networkAddress[3] = 0
 	}
-	write-host $broadcastAddress
-	write-host $networkAddress
+	$IPArray = [String]$IPArray
+	$subnetArray = [String]$subnetArray
+	$networkAddress = [String]$networkAddress
+	$broadcastAddress = [String]$broadcastAddress
+
+	$IPArray = $IPArray.replace(" ", ".")
+	$subnetArray = $subnetArray.replace(" ",".")
+	$networkAddress = $networkAddress.replace(" ",".")
+	$broadcastAddress = $broadcastAddress.replace(" ", ".")
+
 	buildTable $IPArray $subnetArray $networkAddress $broadcastAddress $numberOfNetworkBits $numberOfHostBits $numberOfNetworks $hostsPerNetwork $slashNotation
 
 }
 
+#Otherwise, classeless routing
 else{
 $numberOfHostBits = 32 - $numberOfNetworkBits
 
@@ -250,8 +261,20 @@ $broadcastAddress[$position] = $broadcastBit
 $numberOfNetworks = [math]::pow( 2, $numberOfNetworkBits )
 $numberOfHostsPerNetwork = [math]::pow(2, $numberOfHostBits)  - 2
 
-buildTable $IPArray $subnetArray $networkAddress $broadcastAddress $numberOfNetworkBits $numberOfHostBits $numberOfNetworks $hostsPerNetwork $slashNotation
 
+#Turn back into String so I can add .
+
+$IPArray = [String]$IPArray
+$subnetArray = [String]$subnetArray
+$networkAddress = [String]$networkAddress
+$broadcastAddress = [String]$broadcastAddress
+
+$IPArray = $IPArray.replace(" ", ".")
+$subnetArray = $subnetArray.replace(" ",".")
+$networkAddress = $networkAddress.replace(" ",".")
+$broadcastAddress = $broadcastAddress.replace(" ", ".")
+
+buildTable $IPArray $subnetArray $networkAddress $broadcastAddress $numberOfNetworkBits $numberOfHostBits $numberOfNetworks $hostsPerNetwork $slashNotation
 
 }
 
