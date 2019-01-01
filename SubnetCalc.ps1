@@ -106,6 +106,7 @@ $array
     foreach($octet in $returnedArray){
 	if ([Int]$octet -gt 255 -or [Int]$octet -lt 0){
 		write-host "IP Address or Subnet Mask was not in the correct format."
+		read-host
 		exit
 	}	
     }
@@ -172,6 +173,7 @@ for($i=0; $i -lt $ipaddress.length -1; $i++){
 }
 if($IPcount -ne 3){
     write-host $IPAddress "is not in the correct format. Please rerun script"
+    read-host
     exit
 }
 
@@ -184,6 +186,7 @@ for($i=0; $i -lt $subnetMask.length -1; $i++){
 
 if($subnetCount -ne 3){
     write-host $IPAddress "is not in the correct format. Please rerun script"
+    read-host
     exit
 }
 $IPArray = makeArray $IPAddress
