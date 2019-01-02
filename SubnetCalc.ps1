@@ -294,5 +294,4 @@ $broadcastAddress = $broadcastAddress.replace(" ", ".")
 buildTable $IPArray $subnetArray $networkAddress $broadcastAddress $numberOfNetworkBits $numberOfHostBits $numberOfNetworks $hostsPerNetwork $slashNotation
 
 }
-
 read-host
