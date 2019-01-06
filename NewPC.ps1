@@ -19,6 +19,7 @@ function infoText($output)
 	return $output
 	}
 	
+	"Yas girl Yass!"
 
 write-host "===========================================New PC Assistant============================================================"
 write-host -foreGroundColor yellow("You should run this script AFTER the PC has been joined to the domain and from an account that has")
