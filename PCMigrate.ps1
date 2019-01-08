@@ -60,7 +60,6 @@ function getSizeOfFolder{
         return [String]$total = "<1MB"
     }
 }
-
 if($testKits -eq $false){
     write-host("-------------------------")
     $createKits = new-item -ItemType directory -Path C:\kits\
@@ -92,7 +91,6 @@ function getDefaultBrowser{
     }
     return $defaultBrowser
 }
-
 #Gets installed printers on PC, excludes Fax, anything containing Microsoft and Send
 $printerArray = Get-WmiObject -class win32_printer | where-object {$_.Name -notlike "*Fax*" -and $_.Name -notlike "*Microsoft*" -and $_.Name -notlike "*send*"} 
 write-host "Getting Printer info..."
@@ -110,7 +108,6 @@ if($printerArray -eq $null){
             }
         $table.rows.Add($row)
     }
-
 $drives = Get-WmiObject -class win32_mappedlogicaldisk
 write-host "Getting Mapped Drives info..."
 foreach ($drive in $drives){
@@ -121,7 +118,6 @@ foreach ($drive in $drives){
     $row.Value2 = $drive.providername
     $table.Rows.Add($row)   
 }
-
 #Looks through users profile for .PSTs
 $PSTS = Get-ChildItem $currentUserProfile -Recurse -ErrorAction silentlycontinue -Filter '*.pst' 
 $totalPSTS = 0
@@ -158,7 +154,6 @@ $usersPictures = $usersFoldersInRegistry."My Pictures"
 $usersFoldersArray += $usersPictures
 $usersMusic = $usersFoldersInRegistry."My Music"
 $usersFoldersArray += $usersMusic
-
     foreach($folder in $usersFoldersArray){  
     $sum = getSizeOfFolder $folder
     $row = $table.NewRow()
@@ -167,7 +162,6 @@ $usersFoldersArray += $usersMusic
     $row.value2 = "$sum"
     $table.rows.Add($row)
     }
-    
 $currentDefaultBrowser = getDefaultBrowser
 write-host "Getting Browser Info..."
 $row = $table.NewRow()
