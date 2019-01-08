@@ -114,15 +114,13 @@ if($printerArray -eq $null){
 $drives = Get-WmiObject -class win32_mappedlogicaldisk
 write-host "Getting Mapped Drives info..."
 foreach ($drive in $drives){
-
     $row = $table.NewRow()
     $row.Info = "Mapped Drive"
     $driveLetter = $drive.Name
     $row.Value1 ="$driveLetter"
     $row.Value2 = $drive.providername
     $table.Rows.Add($row)   
-
-    }
+}
 
 #Looks through users profile for .PSTs
 $PSTS = Get-ChildItem $currentUserProfile -Recurse -ErrorAction silentlycontinue -Filter '*.pst' 
