@@ -1,6 +1,6 @@
 <#
 Author: Josh Melo - joshuamelo1126@gmail.com
-Last Updated: 12/23/18
+Last Updated: 1/8/18
 Run this script as the user whose profile is being migrated. This script is used for 
 collecting data for a user before migrating domains/PCs. This is used as reassurance to know
 what data(if) was missing after the migration.
