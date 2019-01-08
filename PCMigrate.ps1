@@ -43,24 +43,23 @@ function getSizeOfFolder{
     Param(
     $directory
     )
-	try{
-	$total = get-childitem $directory -recurse | measure-object -Property Length -sum -erroraction stop | select -expandproperty sum
-	}
-	catch{
-		return [String]$total = "N/A"
-	}
+    try{
+    $total = get-childitem $directory -recurse | measure-object -Property Length -sum -erroraction stop | select -expandproperty sum
+    }
+    catch{
+    return [String]$total = "N/A"
+    }
     if($total -gt 1000000000){  
         $total =  [math]::Round($total / 1gb, 2)
         return [String]$total += "GB"
     }
-        elseif($total -gt 1000000){
+     elseif($total -gt 1000000){
         $total =  [math]::Round($total / 1mb,2)
         return [String]$total += "MB"
     }
     else{
         return [String]$total = "<1MB"
 	}
-	
 }
 
 if($testKits -eq $false){
