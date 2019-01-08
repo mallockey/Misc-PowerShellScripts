@@ -39,7 +39,6 @@ $row.Value2=$userName
 $table.rows.Add($row)
 
 function getSizeOfFolder{
-
     Param(
     $directory
     )
@@ -59,7 +58,7 @@ function getSizeOfFolder{
     }
     else{
         return [String]$total = "<1MB"
-	}
+    }
 }
 
 if($testKits -eq $false){
