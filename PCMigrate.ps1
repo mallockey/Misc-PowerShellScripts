@@ -70,20 +70,15 @@ if($testKits -eq $false){
 #Queries Registry value to determine default web browser basedon ProgID value.
 function getDefaultBrowser{
     write-host "Getting Default Browser"
-	try{
-	$defaultBrowser = Get-Itemproperty -path hkcu:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\ -ErrorAction stop | select -expandproperty Progid
-	}
-	catch{
-		$defaultBrowser = "Not set"
-		return $defaultBrowser
-	}
     try{
-    $chromeBookmarks = "$currentUserProfile\AppData\Local\Google\Chrome\User Data\Default\Bookmarks"
+    $defaultBrowser = Get-Itemproperty -path hkcu:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\ -ErrorAction stop | select -expandproperty Progid
     }
     catch{
-    write-host "Chrome is default but no bookmarks found"
+    $defaultBrowser = "Not set"
+    return $defaultBrowser
     }
-    $defaultBrowser = "Google Chrome"       
+    if($defaultBrowser -like "*Chrome*"){
+        $defaultBrowser = "Google Chrome"
     }
     elseif ($defaultBrowser -like "*FireFox*"){
     $defaultBrowser = "Mozilla FireFox"
