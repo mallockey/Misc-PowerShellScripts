@@ -6,7 +6,7 @@ collecting data for a user before migrating domains/PCs. This is used as reassur
 what data(if) was missing after the migration.
 The following is checked for and exported to a CSV:
 1)Username/Domain
-2)Default Web Browser(I.E. & Google Chrome will automatically backup bookmarks.
+2)Default Web Browser
 3)Printers(checks for default. Send to PDF/Microsoft/Fax are omitted.
 4)Mapped drives. Letters and locations
 5)*PST files under the users profile ONLY. The name and path are noted in the table*
@@ -77,37 +77,21 @@ function getDefaultBrowser{
 		$defaultBrowser = "Not set"
 		return $defaultBrowser
 	}
-    if($defaultBrowser -like "*Chrome*"){
-    $testChrome = test-path -path "C:\Kits\ChromeBookmarks"
-		if($testBookmarks -eq $false){
-		$createChromeFolder = new-item -itemtype directory -path "C:\Kits\ChromeBookmarks"
-		}
     try{
     $chromeBookmarks = "$currentUserProfile\AppData\Local\Google\Chrome\User Data\Default\Bookmarks"
     }
     catch{
     write-host "Chrome is default but no bookmarks found"
     }
-    Copy-Item -Path $chromeBookmarks -destination "C:\Kits\ChromeBookmarks\"
     $defaultBrowser = "Google Chrome"       
     }
     elseif ($defaultBrowser -like "*FireFox*"){
-    $testFireFox = test-path -path "C:\Kits\FireFoxBookmarksBackup"
-		if($testFireFox -eq $false){
-			$createFireFoxFolder = new-item -itemtype directory -path "C:\Kits\FireFoxBookmarksBackup"
-		}
-    copy-item "$currentUserProfile\AppData\Roaming\Mozilla\Firefox\Profiles" -recurse -destination "C:\kits\FirefoxBookmarksBackup"
     $defaultBrowser = "Mozilla FireFox"
     }
     elseif($defaultBrowser -like "*APPX*"){
     $defaultBrowser = "Microsoft Edge"
     }
     elseif ($defaultBrowser -like "*IE*" -or $defaultBrowser -like "*HTML*"){
-    $testIE = test-path -path "C:\Kits\IEBookmarksBackup"
-		if($testIE -eq $false){
-		$createIEFolder = new-item -itemtype directory -path "C:\Kits\IEBookmarksBackup"
-		}
-    copy-item $usersFavorites -recurse -destination $createIEFolder
     $defaultBrowser = "Internet Explorer"
     }
     else{
