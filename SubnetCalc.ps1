@@ -250,7 +250,7 @@ if($numberofNetworkBits % 8 -eq 0){
 
 }
 
-#Otherwise, classeless routing
+#Otherwise, classless routing
 else{
 $numberOfHostBits = 32 - $numberOfNetworkBits
 
