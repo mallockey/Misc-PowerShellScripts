@@ -9,6 +9,9 @@ write-host -foreGroundColor cyan("============================Auto Installer====
 write-host -foreGroundColor cyan("This script will attempt to install all setup files in a given directory")
 write-host -foreGroundColor cyan ----------------------------------------------------------
 function getArgument($program){
+	Param(
+	$program
+	)
 
 	if((get-command $program).FileVersionInfo.Filedescription -match 'Microsoft Setup Bootstrapper'){
 	$program = "/config config.xml"
