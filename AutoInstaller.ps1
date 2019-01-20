@@ -8,7 +8,7 @@ matching the product so please don't rename the setup files names.
 write-host -foreGroundColor cyan("============================Auto Installer============================")
 write-host -foreGroundColor cyan("This script will attempt to install all setup files in a given directory")
 write-host -foreGroundColor cyan ----------------------------------------------------------
-function getArgument($program){
+function getArgument(){
 	Param(
 	$program
 	)
@@ -86,12 +86,6 @@ function testPath($path)
 
 }
 $currentDir = "$psscriptroot"
-if(-Not(test-path "$currentDir\config.xml")){
-	failText("Enter the Config.xml in the directory where the script was run")
-	read-host
-	exit
-
-}
 
 $programsDir = read-host "Enter the path of the install files are(Ex. c:\kits\)"
 try{
