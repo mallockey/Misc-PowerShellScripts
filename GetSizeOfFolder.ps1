@@ -14,7 +14,6 @@ $col1 = New-Object system.Data.DataColumn Folder,([string])
 $col2 = New-Object system.Data.DataColumn Space,([string])
 $table.columns.add($col1)
 $table.columns.add($col2)
-$totalSpaceOfAllFolders = 0
 
 function getSizeOfFolder{
     Param(
@@ -60,7 +59,6 @@ foreach($folder in $usersFoldersArray){
 }
 
 $table | format-table -AutoSize 
-
 write-host -foregroundcolor yellow "INFO: Folders that the user running the script from, doesn't have access to, will not be accounted for."
 write-host -foregroundcolor yellow "INFO: CSV was exported to $currentPath"
 $table | export-csv "$currentPath\UsersFoldersSizes.csv" -noTypeInformation
