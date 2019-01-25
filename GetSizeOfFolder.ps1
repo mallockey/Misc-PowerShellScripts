@@ -40,7 +40,6 @@ function getSizeOfFolder{
 }
 
 $usersFoldersArray = get-childitem -name $pathToCheck
-
 foreach($folder in $usersFoldersArray){  
 	$testFolder = test-path -path $pathToCheck\$folder -pathType container
 	if($testFolder -eq $true){
@@ -57,7 +56,6 @@ foreach($folder in $usersFoldersArray){
 	}
 
 }
-
 $table | format-table -AutoSize 
 write-host -foregroundcolor yellow "INFO: Folders that the user running the script from, doesn't have access to, will not be accounted for."
 write-host -foregroundcolor yellow "INFO: CSV was exported to $currentPath"
