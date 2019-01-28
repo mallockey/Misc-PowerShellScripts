@@ -1,5 +1,4 @@
-$subDirectory = "C:\Users\Josh\desktop"
-
+$subDirectory = "C:\Users\Jmelo\desktop\test"
 $monthsToNumbers = @{
 
     "01" = "January"
@@ -24,23 +23,32 @@ function getCurrentMonthFolder{
 	
 $todaysMonth = $date.Substring(0,2)
 $month = $monthsToNumbers[$todaysMonth]
+$year = $date.Substring(6)
 
-$testIfMonthExists = test-path -path $subDirectory\$month
-	if($testIfMonthExists -eq $false){
-	$makeNewDir =  New-Item -Type directory "$subDirectory\$month"
+$testIfYearExists = test-path -path $subDirectory\$year	
+	if($testIfYearExists -eq $false){
+	$makeNewYearDir = New-Item -Type directory "$subDirectory\$year"
 	}
-	return $month
+
+$testIfMonthExists = test-path -path $subDirectory\$year\$month
+	if($testIfMonthExists -eq $false){
+	$makeNewMonthDir =  New-Item -Type directory "$subDirectory\$year\$month"
+	}
+
+	$finalDirectory = "$subDirectory\$year\$month"
+	return $finalDirectory
 }
 
 function getDate{
     
     $todaysDate = get-date -UFormat %D
     $todaysDate = $todaysDate.Replace("/","-")
-    
+    $todaysDate = $todaysDate.Insert(6,"20")
     return $todaysDate
 
 }
 $currentDate = getDate
-$currentMonth = getCurrentMonthFolder $currentDate
-write-output $currentDate
-write-output $currentMonth
+$finalDirectory = getCurrentMonthFolder $currentDate
+write-output $finalDirectory
+
+#Do stuff below with $finalDirectory
