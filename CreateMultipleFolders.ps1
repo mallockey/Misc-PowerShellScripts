@@ -8,7 +8,7 @@ Param(
 $childPath = $childPath.Split(",")
 $testIfDirectoryExists = test-path -path $directory
     if($testIfDirectoryExists -eq $false){
-    $makeNewYearDir = New-Item -Type directory "$directory\$parentPath"
+    $makeNewParentDir = New-Item -Type directory "$directory\$parentPath"
     }
         foreach($children in $childPath){
 	$testIfChildExists = test-path -path "$directory\$parentPath\$children"
