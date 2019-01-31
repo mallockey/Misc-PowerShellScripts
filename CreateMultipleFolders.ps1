@@ -1,10 +1,9 @@
 Param(
-  [Parameter(Mandatory=$true)]
-  $directory,
-  $parentPath,
-  $childPath
+[Parameter(Mandatory=$true)]
+$directory,
+$parentPath,
+$childPath
 )
-
 $childPath = $childPath.Split(",")
 $testIfDirectoryExists = test-path -path $directory
     if($testIfDirectoryExists -eq $false){
