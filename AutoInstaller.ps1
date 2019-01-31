@@ -41,30 +41,25 @@ $program
     return $program
     }
 }
-function successText($output)
-{
+function successText($output){
 $output = write-host -ForeGroundColor green "SUCCESS:"$output
 return $output
 }
-function failText($output)
-{
+function failText($output){
 $output = write-host -ForeGroundColor red "ERROR:"$output
 return $output
 }
-function infoText($output)
-{
+function infoText($output){
 $output = write-host -foreGroundColor yellow "INFO:"$output
 return $output
 }
 function isEmptyString($string){
-if([string]::IsNullOrWhiteSpace($string))
-{
-return $true
-}
-else
-{
-return $false
-}
+    if([string]::IsNullOrWhiteSpace($string)){
+    return $true
+    }
+    else{
+    return $false
+    }
 }
 function testPath($path){
 $path = test-path $path
@@ -88,9 +83,9 @@ read-host
 exit
 }
 if($programsDir.EndsWith("\") -eq $false){
-	failText("$programsDir does not end with \")
-	read-host
-	exit
+    failText("$programsDir does not end with \")
+    read-host
+    exit
 }
 $currentDir = "$psscriptroot"
 copy-item "$psscriptroot\config.xml" -destination $programsDir
