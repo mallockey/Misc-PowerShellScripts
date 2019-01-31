@@ -4,13 +4,11 @@ $currentDir = "$psscriptroot"
 try{
 $computersArray = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
 }
-
 catch{
 write-host -foreGroundColor red "OU not correct please verify OU and rerun."
 read-host 
 exit
 }
-
 foreach($computers in $computersArray){
 $lastLogonDate = get-adcomputer -identity $computers -properties * | select-object -ExpandProperty lastlogondate 
 write-host $computers "Last Logon Date:"$lastLogonDate
