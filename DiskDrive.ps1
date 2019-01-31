@@ -8,13 +8,13 @@ exit
 $ou = read-host "Please enter the OU where workstations/servers are"
 try
 {
-    $servers = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
+$servers = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
 }
 catch
 {
-    write-host -foreGroundColor red "OU not correct please verify OU and rerun."
-    read-host 
-    exit
+write-host -foreGroundColor red "OU not correct please verify OU and rerun."
+read-host 
+exit
 }
 $currentPath = Get-Location
 $currentPath = $currentPath.path
@@ -43,52 +43,49 @@ $table.columns.add($col6)
 $table.columns.add($col7)
 
 foreach($server in $servers){
-	if(test-connection $server -quiet -count 1){
-	try{
-	$allDriveInfo = get-wmiobject -class win32_logicaldisk -computerName $server -errorAction stop
-	}
-	catch{
-		write-host -ForegroundColor red "Error getting disk space from $server"
-		continue
-	}
-	write-host -foregroundcolor green "Getting info from: $server"
-		foreach($drive in $allDriveInfo){
-		
-			if($drive.FreeSpace -eq $null){
-			continue
-			}
-
-			$driveName = $drive.VolumeName
-			$freeSpace = [int]($drive.FreeSpace / 1gb)
-			$totalSpace = [int]($drive.Size / 1gb)
-			$driveLetter = $drive.DeviceID
-			[int]$percentFree = ($freeSpace / $totalSpace) * 100
-				if($percentFree -lt 10)
-				{
-				$diskStatus = "LOW"
-				}
-				else{
-				$diskStatus = "OK"
-				}
-			[string]$freeSpace += " GBs"
-			[string]$totalSpace += " GBs"
-			[string]$percentFree +="%"
-			$row = $table.NewRow()
-			$row.DriveLetter = "$driveLetter" 
-			$row.DriveLabel = "$driveName" 
-			$row.ComputerName = "$server"
-			$row.freeSpace = "$freeSpace"
-			$row.TotalSpace = "$totalSpace"
-			$row.PercentFree = "$Percentfree"
-			$row.Status = "$diskStatus"
-			#Add the row to the table
-			$table.Rows.Add($row)
-
+    if(test-connection $server -quiet -count 1){
+    try{
+    $allDriveInfo = get-wmiobject -class win32_logicaldisk -computerName $server -errorAction stop
+    }
+    catch{
+    write-host -ForegroundColor red "Error getting disk space from $server"
+    continue
+    }
+    write-host -foregroundcolor green "Getting info from: $server"
+        foreach($drive in $allDriveInfo){
+	    if($drive.FreeSpace -eq $null){
+	    continue
+	    }
+	    $driveName = $drive.VolumeName
+	    $freeSpace = [int]($drive.FreeSpace / 1gb)
+	    $totalSpace = [int]($drive.Size / 1gb)
+	    $driveLetter = $drive.DeviceID
+	    [int]$percentFree = ($freeSpace / $totalSpace) * 100
+	        if($percentFree -lt 10)
+		{
+		$diskStatus = "LOW"
 		}
-	}
-	else{
-	write-host -foregroundcolor yellow $server is not online
-	}
+		else{
+		$diskStatus = "OK"
+		}
+	    [string]$freeSpace += " GBs"
+	    [string]$totalSpace += " GBs"
+	    [string]$percentFree +="%"
+	    $row = $table.NewRow()
+	    $row.DriveLetter = "$driveLetter" 
+	    $row.DriveLabel = "$driveName" 
+	    $row.ComputerName = "$server"
+	    $row.freeSpace = "$freeSpace"
+	    $row.TotalSpace = "$totalSpace"
+	    $row.PercentFree = "$Percentfree"
+	    $row.Status = "$diskStatus"
+	    #Add the row to the table
+	    $table.Rows.Add($row)
+        }
+    }
+    else{
+    write-host -foregroundcolor yellow $server is not online
+    }
 }
 
 $Header = @"
