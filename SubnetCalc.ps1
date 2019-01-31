@@ -1,5 +1,4 @@
 $subnetMasks = @{
-
 255 = 8
 254 = 7
 252 = 6
@@ -9,10 +8,8 @@ $subnetMasks = @{
 192 = 2
 128 = 1
 0 =   0
-
 }
 $subnetIncrements = @{
-
 128 = 128
 192 = 64
 224 = 32
@@ -86,7 +83,6 @@ $ranges,
 $IPArray,
 $position
 )	
-
 foreach($range in $ranges){
     for($i = 0; $i -lt $range.length; $i++){
         if($range[$i] -eq $IPArray[$position]){
@@ -96,7 +92,6 @@ foreach($range in $ranges){
 }	
 return $currentRange		
 }
-
 function makeArray{
 Param(
 $array
@@ -105,9 +100,9 @@ $array
     $returnedArray = $array.split(".")
     foreach($octet in $returnedArray){
 	if ([Int]$octet -gt 255 -or [Int]$octet -lt 0){
-		write-host "IP Address or Subnet Mask was not in the correct format."
-		read-host
-		exit
+	write-host "IP Address or Subnet Mask was not in the correct format."
+	read-host
+	exit
 	}	
     }
 return $returnedArray
@@ -197,7 +192,7 @@ $broadcastAddress = makeArray $IPAddress
 
 #Gets number of network bits
 foreach($octet in $subnetArray){
-	$numberOfNetworkBits += getSubnetBits $octet
+$numberOfNetworkBits += getSubnetBits $octet
 }
 #Classful Routing based on if number of network bits is disvisible by 8 without a remainder.
 if($numberofNetworkBits % 8 -eq 0){
