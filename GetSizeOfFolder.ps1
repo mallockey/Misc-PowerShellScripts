@@ -1,6 +1,6 @@
 Param(
-  [Parameter(Mandatory=$true)]
-  $PathToCheck
+[Parameter(Mandatory=$true)]
+$PathToCheck
 )
 $testPath = test-path $PathToCheck
 if($PathToCheck -eq $null -or $testPath -eq $false){
