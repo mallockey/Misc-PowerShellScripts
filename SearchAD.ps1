@@ -27,7 +27,7 @@ $decision = read-host "Please make a decision"
         }
     2{  
         [int]$endRange = 0
-        $startPC = read-host "Enter PC name convention(Ex. CORSAIR-WS)"
+        $startPC = read-host "Enter PC name convention(Ex. WS-0)"
         [int]$startRange = read-host "Enter first number"
         $endRange = read-host "Enter end range"
         for($i=$startRange; $i -le $endRange; $i++ ){
