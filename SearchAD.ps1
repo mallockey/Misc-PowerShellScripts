@@ -1,3 +1,6 @@
+<#
+Work in progress, used to more easily search Active Directory
+#>
 import-module activedirectory
 write-host "================================================="
 write-host "1) Check for PCs in AD, one by one"
