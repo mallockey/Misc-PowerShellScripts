@@ -1,4 +1,4 @@
-<#Just having fun with recursions#>
+<#Just having fun with recursions, be careful running this with large directories#>
 function folderDigger{
 Param(
 $path
