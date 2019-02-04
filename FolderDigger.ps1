@@ -3,7 +3,6 @@ function folderDigger{
 Param(
 $path
 )
-$outFile = "C:\users\josh\desktop\Paths.txt"
 $startDirectory = Get-ChildItem $path | select -ExpandProperty fullname
     foreach($directory in $startDirectory){
     $testIfFile = test-path -pathType leaf -path $directory
