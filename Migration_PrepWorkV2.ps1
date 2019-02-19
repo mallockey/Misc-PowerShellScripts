@@ -33,10 +33,10 @@ function postChecks{
 	if($currentTest -eq $true){
 		$checkIfFolderIsEmpty = Get-ChildItem $test
 		if($checkIfFolderIsEmpty -eq $null){
-			$result = "Warning(Folder was empty)"
+		    $result = "Warning(Folder was empty)"
 		}
 		else{
-			$result = "Success"
+		    $result = "Success"
 		}
 	}
 	else{
