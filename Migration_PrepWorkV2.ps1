@@ -30,24 +30,27 @@ function postChecks{
     $result
     )
     $currentTest = testPath -path $test
-        if($currentTest -eq $true){
-            $checkIfFolderIsEmpty = Get-ChildItem $test
-            if($checkIfFolderIsEmpty -eq $null){
-                $result = "Warning(Folder was empty)"
-            }
-            else{
-                $result = "Success"
-            }
-        }
-        else{
-        $result = "Failed"
-        }
-    return $result
-    }
+	if($currentTest -eq $true){
+		$checkIfFolderIsEmpty = Get-ChildItem $test
+		if($checkIfFolderIsEmpty -eq $null){
+			$result = "Warning(Folder was empty)"
+		}
+		else{
+			$result = "Success"
+		}
+	}
+	else{
+	$result = "Failed"
+	}
+return $result
+}
 
 function getRules{
 #This code was taken from Scripting Guy blog here:
 #https://blogs.technet.microsoft.com/heyscriptingguy/2009/12/15/hey-scripting-guy-how-can-i-tell-which-outlook-rules-i-have-created/
+$numLocalRules = 0
+$numServerRules = 0
+$rulesString = ""
     try{
         Add-Type -AssemblyName microsoft.office.interop.outlook 
         $olFolders = "Microsoft.Office.Interop.Outlook.OlDefaultFolders" -as [type]
@@ -57,12 +60,20 @@ function getRules{
         $rules = $outlook.session.DefaultStore.GetRules()
         $rules | Sort-Object -Property ExecutionOrder |
         Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
-
+			foreach($rule in $rules){
+				if($rule.IsLocal -eq $true){
+					$numLocalRules++
+				}
+				else{
+					$numServerRules++
+				}
+			}
+		$rulesString = "$numLocalRules Local Rules | $numServerRules Server rules"
         $rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
         $postRulesCheck = test-path -Type leaf "$mailMigrationFolder\Rules.csv"
         $row = $testTable.NewRow()
         $row.BackedUpData = "OutlookRules"
-        $row.OriginalPath = "Not Applicable"
+        $row.OriginalPath = "$rulesString"
         $row.BackedUpPath = "$mailMigrationFolder\Rules.csv"
         $row.Pass = $postRulesCheck
         $testTable.Rows.Add($row)
