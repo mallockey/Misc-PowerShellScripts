@@ -60,15 +60,15 @@ $rulesString = ""
         $rules = $outlook.session.DefaultStore.GetRules()
         $rules | Sort-Object -Property ExecutionOrder |
         Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
-			foreach($rule in $rules){
-				if($rule.IsLocal -eq $true){
-					$numLocalRules++
-				}
-				else{
-					$numServerRules++
-				}
-			}
-		$rulesString = "$numLocalRules Local Rules | $numServerRules Server rules"
+		foreach($rule in $rules){
+		    if($rule.IsLocal -eq $true){
+			$numLocalRules++
+		    }
+		    else{
+			$numServerRules++
+		    }
+		}
+	$rulesString = "$numLocalRules Local Rules | $numServerRules Server rules"
         $rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
         $postRulesCheck = test-path -Type leaf "$mailMigrationFolder\Rules.csv"
         $row = $testTable.NewRow()
