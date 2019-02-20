@@ -10,7 +10,7 @@ foreach($computer in $computers){
 
 	if(test-connection -count 1 -quiet $computer){
 		try{
-		$currentUser = get-wmiobject -class win32_computersystem -computername $computer | select -expandproperty username
+		$currentUser = get-wmiobject -class win32_computersystem -computername $computer -erroraction stop | select -expandproperty username
 		}
 		catch{
 			write-progress -Activity "Checking PCs" -currentOperation "Failed to get data from $computer"
