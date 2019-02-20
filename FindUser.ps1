@@ -29,5 +29,3 @@ foreach($computer in $computers){
 }
 write-host "$findUser was logged into the below PCs:"
 write-host $PCsLoggedInto
-
-read-host
