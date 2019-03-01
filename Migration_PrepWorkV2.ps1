@@ -1,9 +1,10 @@
 <#
 Author: Josh Melo
-Last Updated: 02/17/19
+Last Updated: 02/28/19
 #>
 write-output "
 -----------------------Mail Migration Prep Script-----------------------
+*For use with Office 2010 and above*
 This script will do the following:
 -Backup AutoComplete
 -Record user information in CSVs files
@@ -260,9 +261,7 @@ $row.BackedUpPath = "$mailMigrationFolder\signatures\"
 $row.Pass = $postCheckSignatures
 $testTable.Rows.Add($row)
 
-$userString = $userName + "On_" + $PCName
-
-$testTable | format-table -AutoSize
+$testTable | format-table -AutoSize 
 $testTable | export-csv "$mailMigrationFolder\TestsTable.csv" -NoTypeInformation
 
 write-host "All data was backed up to: $mailMigrationFolder"
