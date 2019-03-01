@@ -10,7 +10,8 @@ This script will do the following:
 -Backup Signatures
 -Backup Rules(Without Conditions)
 -Take Screenshots of Outlook tabs
--Check for PSTs under C:\
+-Check for PSTs under C:\ and note location. Does not backup PSTs
+-Record Number of Contacts
 ------------------------------------------------------------------------"
 function testPath{
     Param(
@@ -18,7 +19,7 @@ function testPath{
     )
     $path = test-path $path
         if($path -eq $true){
-        return $true
+           return $true
         }
         else{
         return $false
@@ -70,7 +71,8 @@ $rulesString = ""
 		}
 	$rulesString = "$numLocalRules Local Rules | $numServerRules Server rules"
         $rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
-        $postRulesCheck = test-path -Type leaf "$mailMigrationFolder\Rules.csv"
+        $postRulesCheck = "$mailMigrationFolder\Rules.csv"
+        $postRulesCheck = postChecks -test $postRulesCheck
         $row = $testTable.NewRow()
         $row.BackedUpData = "OutlookRules"
         $row.OriginalPath = "$rulesString"
@@ -125,26 +127,17 @@ $testTable.columns.add($col2)
 $testTable.columns.add($col3)
 $testTable.columns.add($col4)
 
-$infoTable = New-Object system.Data.DataTable “$infoTable”
-$inCol1 = New-Object system.Data.DataColumn Info,([string])
-$inCol2 = New-Object system.Data.DataColumn Value1,([string])
-$inCol3 = New-Object system.Data.DataColumn Value2,([string])
-$inCol4 = New-Object system.Data.DataColumn Value3,([string])
-$infoTable.columns.add($inCol1)
-$infoTable.columns.add($inCol2)
-$infoTable.columns.add($inCol3)
-$infoTable.columns.add($inCol4)
 
 $userDomain = $env:userDomain
 $userName = $env:username
 $PCName = hostname
 
-$row = $infoTable.NewRow()
-$row.Info = "UserInfo"
-$row.Value1 = "$userName"
-$row.Value2 = "$userDomain"
-$row.Value3 = "$PCName"
-$infoTable.Rows.Add($row)
+$row = $testTable.NewRow()
+$row.BackedUpData = "Username/Domain/PCName"
+$row.OriginalPath = "$userName"
+$row.BackedUpPath = "$userDomain"
+$row.Pass = "$PCName"
+$testTable.Rows.Add($row)
 $todaysDate = get-date -Format MM-dd-yyyy
 $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration_$todaysDate"
@@ -211,15 +204,38 @@ $signaturesTest = testPath -path $signatures
 Write-Progress -Activity "Collecting Data" -CurrentOperation "Checking for PSTs under C:\"
 $PSTS = Get-ChildItem "C:\" -Recurse -Filter '*.pst' -ErrorAction SilentlyContinue
     foreach ($pst in $psts){
-        $row = $infoTable.NewRow()
-        $row.Info = "PST"
+        $row = $testTable.NewRow()
+        $row.BackedUpData = "PST Name/Location"
         $PSTName = $PST.name
         $PSTDirectory = $PST.directory
-        $row.Value1 = "$PSTName"
-        $row.Value2 = "$PSTDirectory"
-        $infoTable.Rows.Add($row) 
+        $row.OriginalPath = "$PSTName"
+        $row.BackedUpPath = "$PSTDirectory"
+        $row.Pass  = "Location Noted Only"
+        $testTable.Rows.Add($row) 
     }
-    
+Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Total Contacts"
+
+$row = $testTable.NewRow()
+try{
+    $numContacts = 0
+    $outlook = New-Object -ComObject Outlook.Application
+    $contacts = $outlook.session.GetDefaultFolder(10).items
+    $contacts | ForEach-Object {$numContacts++}
+    $row.BackedUpData = "Contacts"
+    $row.OriginalPath = "Total Contacts: $numContacts"
+    $row.BackedUpPath = "Not Applicable"
+    $row.Pass = "Success"
+    $testTable.Rows.Add($row)
+}
+catch{
+    write-progress -Activity "Collecting Data" -currentOperation "Unable to get contacts"
+    $row.BackedUpData = "Contacts"
+    $row.OriginalPath = "N/A"
+    $row.BackedUpPath = "N/A"
+    $row.Pass = "Failed"
+    $testTable.Rows.Add($row)
+}
+
 start-process outlook.exe
 Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Outlook Rules"
 getRules
@@ -246,10 +262,7 @@ $testTable.Rows.Add($row)
 
 $userString = $userName + "On_" + $PCName
 
-$infoTable | format-table 
-$infoTable |  export-csv "$mailMigrationFolder\$userString.csv" -NoTypeInformation
-
-$testTable | format-table 
+$testTable | format-table -AutoSize
 $testTable | export-csv "$mailMigrationFolder\TestsTable.csv" -NoTypeInformation
 
 write-host "All data was backed up to: $mailMigrationFolder"

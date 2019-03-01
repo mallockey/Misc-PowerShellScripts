@@ -1,8 +1,11 @@
+
 Param(
 [Parameter(Mandatory=$true)]
 $PCConvention,
 $findUser
+
 )
+
 import-module activedirectory
 $computers = Get-ADComputer -Filter * | Where-Object {$_.Name -like "*$PCConvention*"} | select -ExpandProperty name
 $PCsLoggedInto =""
