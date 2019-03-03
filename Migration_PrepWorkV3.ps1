@@ -1,6 +1,6 @@
 <#
 Author: Josh Melo
-Last Updated: 03/2/
+Last Updated: 03/3/19
 -Changed:
 Data is now exported to list instead of table, easier to read and more accurate.
 #>
@@ -49,10 +49,10 @@ function postChecks {
   if ($currentTest -eq $true) {
     $checkIfFolderIsEmpty = Get-ChildItem $test
     if ($checkIfFolderIsEmpty -eq $null) {
-		    $result = "Warning(Folder was empty)"
+	$result = "Warning(Folder was empty)"
     }
     else {
-		    $result = "Success"
+	$result = "Success"
     }
   }
   else {
@@ -76,12 +76,12 @@ function getRules {
     $rules | Sort-Object -Property ExecutionOrder |
       Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
     foreach ($rule in $rules) {
-		    if ($rule.IsLocal -eq $true) {
-        $numLocalRules++
-		    }
-		    else {
-        $numServerRules++
-		    }
+	if ($rule.IsLocal -eq $true) {
+       	    $numLocalRules++
+	 }
+	else {
+      	    $numServerRules++
+	}
     }
     $rulesString = "$numLocalRules Local Rules | $numServerRules Server rules"
     $rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
@@ -234,7 +234,7 @@ $signatureValues = "Signatures", "$postCheckSignatures"
 
 createList -arrayKey $signatureInfo -arrayValue $signatureValues
 foreach ($obj in $arrayOfInfo) {
-  ($obj | format-list | Out-String).Trim() + "`n"|  out-file "$mailMigrationFolder\Results.txt" -Append -Encoding unicode
+  ($obj | format-list | Out-String).Trim() + "`n"|  out-file "$mailMigrationFolder\Results.txt" -Append
 }
 
 $arrayOfInfo | format-list
