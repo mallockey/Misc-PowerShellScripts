@@ -243,3 +243,4 @@ write-host "All data was backed up to: $mailMigrationFolder"
 write-host "------------------------------------------------------------------------"
 read-host "Press Enter to exit"
 read-host
+a
