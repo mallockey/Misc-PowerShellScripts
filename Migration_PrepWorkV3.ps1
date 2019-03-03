@@ -74,7 +74,7 @@ function getRules {
     $folder = $namespace.getDefaultFolder($olFolders::olFolderInbox)
     $rules = $outlook.session.DefaultStore.GetRules()
     $rules | Sort-Object -Property ExecutionOrder |
-      Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
+    Format-Table -Property Name, ExecutionOrder, Enabled, isLocalRule -AutoSize
     foreach ($rule in $rules) {
 	if ($rule.IsLocal -eq $true) {
        	    $numLocalRules++
