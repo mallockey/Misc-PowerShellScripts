@@ -1,19 +1,33 @@
 <#
 Author: Josh Melo
-Last Updated: 02/28/19
+Last Updated: 03/2/
+-Changed:
+Data is now exported to list instead of table, easier to read and more accurate.
 #>
 write-output "
 -----------------------Mail Migration Prep Script-----------------------
 *For use with Office 2010 and above*
 This script will do the following:
 -Backup AutoComplete
--Record user information in CSVs files
 -Backup Signatures
 -Backup Rules(Without Conditions)
 -Take Screenshots of Outlook tabs
 -Check for PSTs under C:\ and note location. Does not backup PSTs
 -Record Number of Contacts
+-Exports List at end to Results.txt
 ------------------------------------------------------------------------"
+function createList{
+    Param(
+      $arrayKey,
+      $arrayValue
+    )  
+    $tempObj = New-Object -TypeName PSObject 
+    
+      for($i=0; $i -lt $arrayKey.count; $i++){
+        $tempObj | Add-Member -MemberType NoteProperty -Name $arrayKey[$i] -Value $arrayValue[$i]    
+      }
+      $arrayOfInfo.Add($tempObj) | out-null 
+    }
 function testPath{
     Param(
     $path
@@ -46,7 +60,6 @@ function postChecks{
 	}
 return $result
 }
-
 function getRules{
 #This code was taken from Scripting Guy blog here:
 #https://blogs.technet.microsoft.com/heyscriptingguy/2009/12/15/hey-scripting-guy-how-can-i-tell-which-outlook-rules-i-have-created/
@@ -74,20 +87,13 @@ $rulesString = ""
         $rules | export-csv "$mailMigrationFolder\Rules.csv" -noTypeInformation
         $postRulesCheck = "$mailMigrationFolder\Rules.csv"
         $postRulesCheck = postChecks -test $postRulesCheck
-        $row = $testTable.NewRow()
-        $row.BackedUpData = "OutlookRules"
-        $row.OriginalPath = "$rulesString"
-        $row.BackedUpPath = "$mailMigrationFolder\Rules.csv"
-        $row.Pass = $postRulesCheck
-        $testTable.Rows.Add($row)
+        $rulesInfo = "Test", "Local Rules", "Server Rules", "Status"
+        $rulesValues = "Rules","$numLocalRules","$numServerRules", "$postRulesCheck" 
     }
     catch{
-        $row = $testTable.NewRow()
-        $row.BackedUpData = "OutlookRules"
-        $row.OriginalPath = "Not Applicable"
-        $row.BackedUpPath = "N/A"
-        $row.Pass = "Failed"
-        $testTable.Rows.Add($row)   
+        $rulesInfo = "Test", "Local Rules", "Server Rules", "Status"
+        $rulesValues = "Rules","N/A","N/A", "Failed" 
+        createList -arrayKey $rulesInfo -arrayValue $rulesValues 
     }
 }
 function takeScreenShot{
@@ -96,9 +102,9 @@ $fileName
 )
 $i = 5
     while($i -gt 0){
-      Write-Progress -Activity "Collecting Data" -CurrentOperation "Taking Screenshot in : $i Seconds"
-      start-sleep -seconds 1
-      $i--
+        Write-Progress -Activity "Collecting Data" -CurrentOperation "Taking Screenshot in : $i Seconds"
+        start-sleep -seconds 1
+        $i--
     }
     Add-Type -AssemblyName System.Windows.Forms
     Add-type -AssemblyName System.Drawing
@@ -117,32 +123,16 @@ $i = 5
 }
 #START!
 start-sleep -seconds 4
-
-$testTable = New-Object system.Data.DataTable “$tableName”
-$col1 = New-Object system.Data.DataColumn BackedUpData,([string])
-$col2 = New-Object system.Data.DataColumn OriginalPath,([string])
-$col3 = New-Object system.Data.DataColumn BackedUpPath,([string])
-$col4 = New-Object system.Data.DataColumn Pass,([string])
-$testTable.columns.add($col1)
-$testTable.columns.add($col2)
-$testTable.columns.add($col3)
-$testTable.columns.add($col4)
-
-
-$userDomain = $env:userDomain
-$userName = $env:username
+$arrayOfInfo = [System.Collections.ArrayList]@()
 $PCName = hostname
+$userInfo = "$env:username", "$env:userDomain"
+$userInfo += $PCName
+$userHeaders = "Username", "Domain", "PCName"
+createList -arrayKey $userHeaders -arrayValue $userInfo
 
-$row = $testTable.NewRow()
-$row.BackedUpData = "Username/Domain/PCName"
-$row.OriginalPath = "$userName"
-$row.BackedUpPath = "$userDomain"
-$row.Pass = "$PCName"
-$testTable.Rows.Add($row)
 $todaysDate = get-date -Format MM-dd-yyyy
 $currentUserProfile = $env:USERPROFILE
 $mailMigrationFolder = "C:\Kits\MailMigration_$todaysDate"
-$currentUserFolder = split-path $currentUserProfile -leaf
 
 $testMail = testPath -path $mailMigrationFolder
     while($testMail -eq $true){     
@@ -196,73 +186,58 @@ $autoCompleteTest = testPath -path $autoComplete
     if($autoCompleteTest -eq $true){
     copy-item -Path $autoComplete -destination "$mailMigrationFolder" -recurse
     }
-
 $signaturesTest = testPath -path $signatures
     if($signaturesTest -eq $true){
     copy-item -Path $signatures -destination "$mailMigrationFolder" -recurse
     }
-
 Write-Progress -Activity "Collecting Data" -CurrentOperation "Checking for PSTs under C:\"
 $PSTS = Get-ChildItem "C:\" -Recurse -Filter '*.pst' -ErrorAction SilentlyContinue
     foreach ($pst in $psts){
-        $row = $testTable.NewRow()
-        $row.BackedUpData = "PST Name/Location"
-        $PSTName = $PST.name
-        $PSTDirectory = $PST.directory
-        $row.OriginalPath = "$PSTName"
-        $row.BackedUpPath = "$PSTDirectory"
-        $row.Pass  = "Location Noted Only"
-        $testTable.Rows.Add($row) 
+        $PSTName = $pst.name
+        $PSTDirectory = $pst.Directory
+        $PSTKeyInfo = "PSTName", "Path"
+        $PSTValueInfo = "$PSTName", "$PSTDirectory"
+        createList -arrayKey $PSTKeyInfo -arrayValue $PSTValueInfo
     }
 Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Total Contacts"
-
-$row = $testTable.NewRow()
 try{
     $numContacts = 0
     $outlook = New-Object -ComObject Outlook.Application
     $contacts = $outlook.session.GetDefaultFolder(10).items
     $contacts | ForEach-Object {$numContacts++}
-    $row.BackedUpData = "Contacts"
-    $row.OriginalPath = "Total Contacts: $numContacts"
-    $row.BackedUpPath = "Not Applicable"
-    $row.Pass = "Success"
-    $testTable.Rows.Add($row)
+    $contactsKeyInfo = "Contacts", "Status"
+    $contactsValueInfo = "$numContacts", "Success"
+    createList -arrayKey $contactsKeyInfo -arrayValue $contactsValueInfo
 }
 catch{
     write-progress -Activity "Collecting Data" -currentOperation "Unable to get contacts"
-    $row.BackedUpData = "Contacts"
-    $row.OriginalPath = "N/A"
-    $row.BackedUpPath = "N/A"
-    $row.Pass = "Failed"
-    $testTable.Rows.Add($row)
+    $contactsKeyInfo = "Contacts", "Status"
+    $contactsValueInfo = "Not Available", "Failed"
+    createList -arrayKey $contactsKeyInfo -arrayValue $contactsValueInfo
 }
 
 start-process outlook.exe
 Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Outlook Rules"
 getRules
-<#
-Creates table and validates whether or not data was backed up
-#>
+
 $postCheckAutoComplete = "$mailMigrationFolder\roamcache\"
 $postCheckAutoComplete = postChecks -test $postCheckAutoComplete
-$row = $testTable.NewRow()
-$row.BackedUpData = "AutoComplete"
-$row.OriginalPath = "$autoComplete"
-$row.BackedUpPath = "$mailMigrationFolder\roamcache\"
-$row.Pass = $postCheckAutoComplete
-$testTable.Rows.Add($row)
+$autoCompleteInfo = "Test", "Status"
+$autoCompleteValues = "AutoComplete", "$postCheckAutoComplete"
+
+createList -arrayKey $autoCompleteInfo -arrayValue $autoCompleteValues
 
 $postCheckSignatures = "$mailMigrationFolder\Signatures\"
 $postCheckSignatures = postChecks -test $postCheckSignatures
-$row = $testTable.NewRow()
-$row.BackedUpData = "Signatures"
-$row.OriginalPath = "$signatures"
-$row.BackedUpPath = "$mailMigrationFolder\signatures\"
-$row.Pass = $postCheckSignatures
-$testTable.Rows.Add($row)
+$signatureInfo = "Test", "Status"
+$signatureValues = "Signatures", "$postCheckSignatures"
 
-$testTable | format-table -AutoSize 
-$testTable | export-csv "$mailMigrationFolder\TestsTable.csv" -NoTypeInformation
+createList -arrayKey $signatureInfo -arrayValue $signatureValues
+foreach($obj in $arrayOfInfo){
+  ($obj | format-list | Out-String).Trim() + "`n"|  out-file "$mailMigrationFolder\Results.txt" -Append -Encoding unicode
+}
+
+$arrayOfInfo | format-list
 
 write-host "All data was backed up to: $mailMigrationFolder"
 write-host "------------------------------------------------------------------------"
