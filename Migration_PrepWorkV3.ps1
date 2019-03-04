@@ -121,7 +121,7 @@ function takeScreenShot {
   Write-Progress -Activity "Collecting Data" -CurrentOperation "Screenshot Saved to $fileName"
   start-sleep -seconds 2
 }
-#START!
+#!-----------------START--------------------!
 start-sleep -seconds 4
 $arrayOfInfo = [System.Collections.ArrayList]@()
 $PCName = hostname
