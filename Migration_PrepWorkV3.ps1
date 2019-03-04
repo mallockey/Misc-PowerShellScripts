@@ -89,6 +89,7 @@ function getRules {
     $postRulesCheck = postChecks -test $postRulesCheck
     $rulesInfo = "Test", "Local Rules", "Server Rules", "Status"
     $rulesValues = "Rules", "$numLocalRules", "$numServerRules", "$postRulesCheck" 
+    createList -arraykey $rulesInfo -arrayValue $rulesValues
   }
   catch {
     $rulesInfo = "Test", "Local Rules", "Server Rules", "Status"
