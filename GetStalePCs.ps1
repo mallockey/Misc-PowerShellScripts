@@ -19,6 +19,7 @@ foreach($computer in $computersArray){
     $arrayOfInfo.Add($tempObj) | out-null 
     continue
   }
+    write-progress -Activity "Collecting Data" -Status "Current PC: $computer"	
 
     $description = $ADInfo.Description
     $lastlogondate = $ADInfo.LastLogonDate
@@ -30,7 +31,7 @@ foreach($computer in $computersArray){
     $tempObj | Add-Member -MemberType NoteProperty -Name "LastLogon" -Value $lastlogondate
     $tempObj | Add-Member -MemberType NoteProperty -Name "Enabled" -Value $isEnabled
     $arrayOfInfo.Add($tempObj) | out-null 
-    write-progress -Activity "Collecting Data" -Status "Current PC: $computer"	
+    
 }
 
 $arrayOfInfo | format-table
