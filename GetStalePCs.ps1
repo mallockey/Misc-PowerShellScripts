@@ -3,7 +3,6 @@ $currentDir = "$psscriptroot"
 $computersArray = get-adcomputer -filter * | select -expandproperty name
 $arrayOfInfo = [System.Collections.ArrayList]@()
 foreach($computer in $computersArray){
- 
     $ADInfo = get-adcomputer -identity $computer -properties *
     write-progress -Activity "Collecting Data" -Status "Current PC: $computer"	
 
@@ -17,8 +16,6 @@ foreach($computer in $computersArray){
     $tempObj | Add-Member -MemberType NoteProperty -Name "LastLogon" -Value $lastlogondate
     $tempObj | Add-Member -MemberType NoteProperty -Name "Enabled" -Value $isEnabled
     $arrayOfInfo.Add($tempObj) | out-null 
-    
 }
-
 $arrayOfInfo | format-table
 $arrayOfInfo | export-csv $psscriptroot"\StalePCs.csv" -noTypeInformation
