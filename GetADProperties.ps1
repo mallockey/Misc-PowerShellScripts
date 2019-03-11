@@ -1,8 +1,8 @@
 Param(
     [Parameter(Mandatory=$true)]
-    $properties
+    $Properties
 )
-Write-Host -ForegroundColor yellow "INFO:If Property does not exist it will not be outputted" 
+Write-Host -ForegroundColor yellow "INFO: If Property does not exist for PC, it will not be outputted." 
 $properties = $properties.Split(" ")
 import-module ActiveDirectory
 $currentDir = "$psscriptroot"
@@ -23,7 +23,8 @@ foreach($computer in $computersArray){
     }
      $PCInfo.Add($PCObj) | out-null
 }
+Write-Host -------------------------------------------
 $PCInfo | format-list
+Write-Host  -------------------------------------------
 Write-Host "ComputerProperties.csv was exported to $currentDir" -ForegroundColor yellow
 $PCInfo  | export-csv $currentDir\"ComputerProperties.csv" -noTypeInformation
-
