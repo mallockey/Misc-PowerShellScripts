@@ -19,3 +19,4 @@ foreach($workstation in $workstations){
 		Set-ADComputer -Identity $workstation -Description $fullUserName
 	}
 }
+asdf
