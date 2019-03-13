@@ -1,5 +1,5 @@
 import-module activedirectory
-$ou = "OU=Workstations,OU=New York,DC=CorsairInvestments,DC=com"
+$ou = ""
 $workstations = get-adcomputer -filter * -searchbase $ou | select -expandproperty name
 foreach($workstation in $workstations){
     if(test-connection -count 1 $workstation -quiet){
