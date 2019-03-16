@@ -1,7 +1,4 @@
-$validAdmins = [System.Collections.ArrayList]@()
-Get-LocalGroupMember Administrators | Select-Object SID | ForEach-Object { 
-   $tempObject = New-Object System.Object
-   $tempObject = Get-LocalUser $_.SID | Where-Object {$_.Enabled -eq $true } | Select-Object Name, Enabled
-   $validAdmins.add($tempObject) | Out-Null
-}
-$validAdmins
+$localValidAdmins = Get-LocalGroupMember administrators | select sid | ForEach-Object {
+Get-LocalUser $_.sid | where {$_.Enabled -eq $true } | select name, enabled}
+
+$localValidAdmins
