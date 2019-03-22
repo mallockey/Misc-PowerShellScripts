@@ -1,3 +1,7 @@
+Param(
+	[Parameter(mandatory=$true)]$IPAddress,
+	[Parameter(mandatory=$true)]$SubnetMask
+)
 $subnetMasks = @{
 255 = 8
 254 = 7
@@ -156,9 +160,6 @@ function buildTable{
 
 	$table | format-List
 }
-
-$IPAddress = read-host "Enter IP Address(Ex.10.5.45.20)"
-$subnetMask = read-host "Enter Subnet Mask(Ex.255.255.255.128)"
 
 $IPcount = 0
 for($i=0; $i -lt $ipaddress.length -1; $i++){
