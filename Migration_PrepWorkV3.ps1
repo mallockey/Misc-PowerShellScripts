@@ -103,7 +103,7 @@ function takeScreenShot {
   )
   $i = 5
   while ($i -gt 0) {
-    Write-Progress -Activity "Collecting Data" -CurrentOperation "Taking Screenshot in : $i Seconds"
+    Write-Progress -Activity "Collecting Data" -Status "Taking Screenshot in : $i Seconds"
     start-sleep -seconds 1
     $i--
   }
@@ -119,7 +119,7 @@ function takeScreenShot {
   $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size) 
   # Save to file
   $bitmap.Save($fileName)
-  Write-Progress -Activity "Collecting Data" -CurrentOperation "Screenshot Saved to $fileName"
+  Write-Progress -Activity "Collecting Data" -Status "Screenshot Saved to $fileName"
   start-sleep -seconds 2
 }
 #!-----------------START--------------------!
@@ -143,10 +143,10 @@ while ($testMail -eq $true) {
 }
 
 $createMigrationFolder = New-Item -ItemType Directory $mailMigrationFolder
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Creating folder: $mailMigrationFolder"
+Write-Progress -Activity "Collecting Data" -Status "Creating folder: $mailMigrationFolder"
 start-sleep -Seconds 2
    
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Loading Outlook to take screenshots"
+Write-Progress -Activity "Collecting Data" -Status "Loading Outlook to take screenshots"
 start-sleep -seconds 5
 #Screenshot Outlook Mail View
 start-process outlook.exe 
@@ -176,10 +176,10 @@ while ($moreScreenShots -ne "n") {
   takeScreenShot -fileName $fileName
 }
 
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Backing up AutoComplete"
+Write-Progress -Activity "Collecting Data" -Status "Backing up AutoComplete"
 Start-Sleep -Seconds 1
 $autoComplete = $currentUserProfile + "\appdata\local\microsoft\outlook\roamcache\"
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Backing up Signatures"
+Write-Progress -Activity "Collecting Data" -Status "Backing up Signatures"
 start-sleep -Seconds 1
 $signatures = $currentUserProfile + "\appdata\roaming\microsoft\signatures"
 
@@ -191,7 +191,7 @@ $signaturesTest = testPath -path $signatures
 if ($signaturesTest -eq $true) {
   copy-item -Path $signatures -destination "$mailMigrationFolder" -recurse
 }
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Checking for PSTs under C:\"
+Write-Progress -Activity "Collecting Data" -Status "Checking for PSTs under C:\"
 $PSTS = Get-ChildItem "C:\" -Recurse -Filter '*.pst' -ErrorAction SilentlyContinue
 foreach ($pst in $psts) {
   $PSTName = $pst.name
@@ -200,7 +200,7 @@ foreach ($pst in $psts) {
   $PSTValueInfo = "$PSTName", "$PSTDirectory"
   createList -arrayKey $PSTKeyInfo -arrayValue $PSTValueInfo
 }
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Total Contacts"
+Write-Progress -Activity "Collecting Data" -Status "Getting Total Contacts"
 try {
   $numContacts = 0
   $outlook = New-Object -ComObject Outlook.Application
@@ -211,14 +211,14 @@ try {
   createList -arrayKey $contactsKeyInfo -arrayValue $contactsValueInfo
 }
 catch {
-  write-progress -Activity "Collecting Data" -currentOperation "Unable to get contacts"
+  write-progress -Activity "Collecting Data" -Status "Unable to get contacts"
   $contactsKeyInfo = "Contacts", "Status"
   $contactsValueInfo = "Not Available", "Failed"
   createList -arrayKey $contactsKeyInfo -arrayValue $contactsValueInfo
 }
 
 start-process outlook.exe
-Write-Progress -Activity "Collecting Data" -CurrentOperation "Getting Outlook Rules"
+Write-Progress -Activity "Collecting Data" -Status "Getting Outlook Rules"
 getRules
 
 $postCheckAutoComplete = "$mailMigrationFolder\roamcache\"
