@@ -1,5 +1,4 @@
-$OU = "OU=Workstations,OU=New York,DC=stonepeak,DC=corp"
-#$OU = "OU=Laptops,OU=New York,DC=stonepeak,DC=corp"
+$OU = ""
 $PCS = Get-ADComputer -filter * -searchbase $OU -properties *
 $arrayOfInfo = [System.Collections.ArrayList]@()
 
