@@ -1,6 +1,6 @@
 Param(
-	[Parameter(mandatory=$true)]$IPAddress,
-	[Parameter(mandatory=$true)]$SubnetMask
+    [Parameter(mandatory=$true)]$IPAddress,
+    [Parameter(mandatory=$true)]$SubnetMask
 )
 $subnetMasks = @{
 255 = 8
