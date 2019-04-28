@@ -10,14 +10,14 @@ $arrayOfBirthdays = [System.Collections.ArrayList]@()
 foreach($birthday in $birthdayCSV){
   $currentName = $birthday.Name
   $currentName = $currentName+"'s"
-  $currentBirthday = (Get-Date $birthday.Day)
+  $currentBirthday = (Get-Date $birthday.Day -Format MM/dd)
   $differenceInDays = New-TimeSpan -Start $todaysDate -End $currentBirthday | select -expandproperty Days
   if($differenceInDays -lt 0 ){
     continue
   }
   if($differenceInDays -lt 30){
     $upcomingBirthdays = $true
-    $birthdayString = "$currentName birthday is in $differenceInDays days! `n"
+    $birthdayString = "$currentName birthday is on $currentBirthday ! `n"
     $arrayOfBirthdays.Add($birthdayString) | Out-Null
   }
 }
@@ -25,4 +25,4 @@ if($upcomingBirthdays -eq $false){
   $birthdayString = "There are no birthdays in the next 30 days"
   $arrayOfBirthdays.Add($birthdayString) | Out-Null
 }
-C:\Scripts\Send-TwilioSMS.ps1 -AccountSID $accountSID -AuthToken $authToken -FromNumber $fromNumber -ToNumber $toNumber -Message $arrayOfBirthdays
+  C:\Scripts\BirthdayReminder\Send-TwilioSMS.ps1 -AccountSID $accountSID -AuthToken $authToken -FromNumber $fromNumber -ToNumber $toNumber -Message $arrayOfBirthdays
