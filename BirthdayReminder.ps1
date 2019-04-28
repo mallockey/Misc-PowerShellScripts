@@ -25,4 +25,4 @@ if($upcomingBirthdays -eq $false){
   $birthdayString = "There are no birthdays in the next 30 days"
   $arrayOfBirthdays.Add($birthdayString) | Out-Null
 }
-  C:\Scripts\Send-TwilioSMS.ps1 -AccountSID $accountSID -AuthToken $authToken -FromNumber $fromNumber -ToNumber $toNumber -Message $arrayOfBirthdays
+C:\Scripts\Send-TwilioSMS.ps1 -AccountSID $accountSID -AuthToken $authToken -FromNumber $fromNumber -ToNumber $toNumber -Message $arrayOfBirthdays
