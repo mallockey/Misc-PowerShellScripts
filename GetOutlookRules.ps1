@@ -146,8 +146,7 @@ function getOutlookRules{
 
     $exceptionType = $rule | ForEach-Object {$_.Exceptions
     } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.ConditionType
-    }
+    } | ForEach-Object {$_.ConditionType}
 
     $ruleSteps = 1
     foreach($action in $actionType){
