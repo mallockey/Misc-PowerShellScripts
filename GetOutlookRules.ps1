@@ -95,35 +95,38 @@ $ruleType = @{
   1 = "When Sending message"
 }
 $arrayOfRules = [System.Collections.ArrayList]@()
-function getRules{
+function getOutlookRules{
   Param(
     $LocalRulesOnly
   )
-
-  Add-Type -AssemblyName microsoft.office.interop.outlook 
-  $olFolders = "Microsoft.Office.Interop.Outlook.OlDefaultFolders" -as [type]
-  $outlook = New-Object -ComObject outlook.application
-  $namespace = $Outlook.GetNameSpace("mapi")
-  $folder = $namespace.getDefaultFolder($olFolders::olFolderInbox)
-  $rules = $outlook.session.DefaultStore.GetRules()
-
+  try{
+    Add-Type -AssemblyName microsoft.office.interop.outlook 
+    $olFolders = "Microsoft.Office.Interop.Outlook.OlDefaultFolders" -as [type]
+    $outlook = New-Object -ComObject outlook.application
+    $namespace = $Outlook.GetNameSpace("mapi")
+    $folder = $namespace.getDefaultFolder($olFolders::olFolderInbox)
+    $rules = $outlook.session.DefaultStore.GetRules()
+  }
+  catch{
+    Write-Host "Error connecting to Outlook. Check that Outlook is running and rerun the script" -ForegroundColor Red
+    exit
+  }
   foreach($rule in $rules){
     $accountSpecified = ""
-    $address = ""
-    $addressRule = ""
-    $categories = ""
+    $addressRules = ""
+    $colorCategories = ""
     $convertedAddress =""
+    $emailAddress = ""
     $formName = ""
     $importanceLevel = ""
-    $newaddress = ""
+    $newAddress = ""
     $nonConvertedAddress =""
     $tempActions = ""
     $tempConditions = ""
     $tempExceptions = ""
-    $text = ""
-    
     $RuleName = $rule.Name
     $tempRuleType = $ruleType[$rule.RuleType]
+    $subjectText = ""
     
     if($LocalRulesOnly){
       if($rule.IsLocalRule -eq $true){
@@ -137,48 +140,64 @@ function getRules{
     } | Where-Object {$_.Enabled -eq $true
     } | Select-Object -ExpandProperty ActionType
 
+    $conditionType = $rule | ForEach-Object {$_.Conditions
+    } | Where-Object {$_.Enabled -eq $true
+    } | ForEach-Object {$_.ConditionType}
+
+    $exceptionType = $rule | ForEach-Object {$_.Exceptions
+    } | Where-Object {$_.Enabled -eq $true
+    } | ForEach-Object {$_.ConditionType
+    }
+
     $ruleSteps = 1
     foreach($action in $actionType){
       $tempActions += "Step $ruleSteps) $($rulesActions[$action])"
       $ruleSteps++
     }
 
-    $importanceLevel += $rule | ForEach-Object {$_.conditions
+    foreach($condition in $conditionType){
+      $tempConditions += $ruleConditions[$condition]
+    }
+
+    foreach($exception in $exceptionType){
+      $exceptionsText = $rule | ForEach-Object {$_.Exceptions
+      } | Where-Object {$_.Enabled -eq $true
+      } | ForEach-Object {$_.text}
+      $tempExceptions += "$($ruleConditions[$exception])  $exceptionsText"
+    }
+
+    $emailAddress = $rule | ForEach-Object {$_.Conditions
     } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.Importance}
+    } | ForEach-Object {$_.Recipients
+    } | ForEach-Object {$_.Address}
+
+    foreach($address in $emailAddress){
+      if($address -like "*/o=*"){
+        $convertedAddress += $rule | ForEach-Object {$_.Conditions
+        } | Where-Object {$_.Enabled -eq $true
+        } | ForEach-Object {$_.Recipients} | Where-Object {$_.Address -like $address
+        } | Select-Object -ExpandProperty Name
+      }
+      else{
+        $nonConvertedAddress += $address
+      }
+    }
+    [String]$newAddress = $convertedAddress + $nonConvertedAddress
 
     $folder = $rule | ForEach-Object{$_.Actions
     } | Where-Object {$_.Enabled -eq $true
     } | ForEach-Object {$_.Folder
     } | Select-Object -ExpandProperty FullFolderPath
-    
-    $address = $rule | ForEach-Object {$_.Conditions
-    } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.Recipients
-    } | ForEach-Object {$_.Address}
-  
-    foreach($add in $address){
-      if($add -like "*/o=*"){
-        $convertedAddress += $rule | ForEach-Object {$_.Conditions
-        } | Where-Object {$_.Enabled -eq $true
-        } | ForEach-Object {$_.Recipients} | Where-Object {$_.Address -like $add
-        } | Select-Object -ExpandProperty Name
-      }
-      else{
-        $nonConvertedAddress += $add
-      }
-    }
-    [String]$newaddress = $convertedAddress + $nonConvertedAddress
 
-    $conditionType = $rule | ForEach-Object {$_.Conditions
-    } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.ConditionType}
-
-    $text += $rule | ForEach-Object {$_.Conditions
+    $subjectText += $rule | ForEach-Object {$_.Conditions
     } | Where-Object {$_.Enabled -eq $true
     } | ForEach-Object {$_.Text}
 
-    $categories += $rule | ForEach-Object {$_.Actions
+    $importanceLevel += $rule | ForEach-Object {$_.conditions
+    } | Where-Object {$_.Enabled -eq $true
+    } | ForEach-Object {$_.Importance}
+
+    $colorCategories += $rule | ForEach-Object {$_.Actions
     } | Where-Object {$_.Enabled -eq $true
     } | ForEach-Object{$_.Categories}
 
@@ -191,55 +210,43 @@ function getRules{
     } | Where-Object {$_.ConditionType -eq 23
     } | ForEach-Object {$_.FormName}
   
-    $addressRule += $rule | ForEach-Object {$_.Conditions
+    $addressRules += $rule | ForEach-Object {$_.Conditions
     } | Where-Object {$_.enabled -eq $true
     } | Where-Object {$_.ConditionType -eq 25
     } | ForEach-Object {$_.AddressList.Name}
       
-    foreach($condition in $conditionType){
-      $tempConditions += $ruleConditions[$condition]
-    }
-  $exceptionsID = $rule | ForEach-Object {$_.Exceptions
-    } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.ConditionType
-    }
-    foreach($exception in $exceptionsID){
-      $exceptionsText = $rule | ForEach-Object {$_.Exceptions
-      } | Where-Object {$_.Enabled -eq $true
-      } | ForEach-Object {$_.text}
-      $tempExceptions += "$($ruleConditions[$exception])  $exceptionsText"
-    }
-    $tempRuleObj = New-Object -TypeName PSObject 
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name RuleName -Value $RuleName
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name RuleType -Value $tempRuleType
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name RecipientList -Value $newaddress
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name SubjectOrMessage -Value $text
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name Action -Value $tempActions
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
+    $ruleObject = New-Object -TypeName PSObject 
+    $ruleObject | Add-Member -MemberType NoteProperty -Name RuleName -Value $RuleName
+    $ruleObject | Add-Member -MemberType NoteProperty -Name RuleType -Value $tempRuleType
+    $ruleObject| Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
+    $ruleObject | Add-Member -MemberType NoteProperty -Name RecipientList -Value $newaddress
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Subject/Message/Text -Value $subjectText
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Action -Value $tempActions
+    $ruleObject| Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
     if($formName -ne ""){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name Formname -Value $formName
+      $ruleObject | Add-Member -MemberType NoteProperty -Name Formname -Value $formName
     }
     if($accountSpecified -ne ""){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name AccountSpecified  -Value $accountSpecified 
+      $ruleObject | Add-Member -MemberType NoteProperty -Name AccountSpecified  -Value $accountSpecified 
     }
-    if($addressRule -ne ""){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name DistributionGroup -Value $addressRule
+    if($addressRules -ne ""){
+      $ruleObject | Add-Member -MemberType NoteProperty -Name DistributionGroup -Value $addressRules
     }
-    if($categories -ne ""){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name Category -Value $categories
+    if($colorCategories -ne ""){
+      write-host $colorCategories
+      $ruleObject | Add-Member -MemberType NoteProperty -Name ColorCategory -Value $colorCategories
     }
     if($importanceLevel -ne ""){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name ImportanceLevel -Value $importanceLevel
+      $ruleObject | Add-Member -MemberType NoteProperty -Name ImportanceLevel -Value $importanceLevel
     }
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name Exceptions -Value $tempExceptions
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Exceptions -Value $tempExceptions
     if($LocalRulesOnly -eq $false){
-      $tempRuleObj | Add-Member -MemberType NoteProperty -Name IsLocalRule -Value "$($rule.IsLocalRule)"
+      $ruleObject | Add-Member -MemberType NoteProperty -Name IsLocalRule -Value "$($rule.IsLocalRule)"
     }
-    $tempRuleObj | Add-Member -MemberType NoteProperty -Name Enabled? -Value "$($rule.Enabled)"
-    $arrayOfRules.Add($tempRuleObj) | out-null
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Enabled? -Value "$($rule.Enabled)"
+    $arrayOfRules.Add($ruleObject) | out-null
     }
 }
-getRules -LocalRulesOnly $LocalRulesOnly
+getOutlookRules -LocalRulesOnly $LocalRulesOnly
 $arrayOfRules | Format-Table
 $arrayOfRules | Export-Csv "C:\Kits\Rules.csv" -NoTypeInformation
