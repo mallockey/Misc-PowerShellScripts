@@ -218,11 +218,11 @@ function getOutlookRules{
     $ruleObject = New-Object -TypeName PSObject 
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleName -Value $RuleName
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleType -Value $tempRuleType
-    $ruleObject| Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
     $ruleObject | Add-Member -MemberType NoteProperty -Name RecipientList -Value $newaddress
     $ruleObject | Add-Member -MemberType NoteProperty -Name Subject/Message/Text -Value $subjectText
     $ruleObject | Add-Member -MemberType NoteProperty -Name Action -Value $tempActions
-    $ruleObject| Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
+    $ruleObject | Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
     if($formName -ne ""){
       $ruleObject | Add-Member -MemberType NoteProperty -Name Formname -Value $formName
     }
@@ -233,7 +233,6 @@ function getOutlookRules{
       $ruleObject | Add-Member -MemberType NoteProperty -Name DistributionGroup -Value $addressRules
     }
     if($colorCategories -ne ""){
-      write-host $colorCategories
       $ruleObject | Add-Member -MemberType NoteProperty -Name ColorCategory -Value $colorCategories
     }
     if($importanceLevel -ne ""){
