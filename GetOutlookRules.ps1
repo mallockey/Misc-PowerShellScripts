@@ -1,16 +1,18 @@
+<#
+.SYNOPSIS
+Gets Outlook rules and formats into readable table.
+
+.DESCRIPTION
+Creates a Outlook COM object and pulls Outlook inbox rules. Table will be displayed in the console and a CSV file 
+will also be exported to where the script was run from.
+
+.PARAMETER LocalRulesOnly
+Only local rules will be displayed and exported to the CSV.
+If this is not set, LocalRule column will be added to the table and CSV to specify which rules are local.
+#>
 Param(
   [switch]$LocalRulesOnly
 )
-<#
-Author: Josh Melo
-Last Updated: 5/8/19
--Actions/Conditions have been slightly modified for better readabillity.The original data sets are located in the links 
-for each hash table.
-The following data does not exist in within the COM object therefore we cannot query its data:
-  Condition 21 - ("Message size is between x and y...")
-  Condition 7 - (Message is marked with the specified level of sensitivity.)
-  Condition 8 - (Message is flagged for specific response)
-#>
 $rulesActions = @{
   #https://docs.microsoft.com/en-us/office/vba/api/outlook.olruleactiontype
   1 = "Move to the specified folder."
@@ -146,7 +148,8 @@ function getOutlookRules{
 
     $exceptionType = $rule | ForEach-Object {$_.Exceptions
     } | Where-Object {$_.Enabled -eq $true
-    } | ForEach-Object {$_.ConditionType}
+    } | ForEach-Object {$_.ConditionType
+    }
 
     $ruleSteps = 1
     foreach($action in $actionType){
@@ -217,11 +220,11 @@ function getOutlookRules{
     $ruleObject = New-Object -TypeName PSObject 
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleName -Value $RuleName
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleType -Value $tempRuleType
-    $ruleObject | Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
+    $ruleObject| Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
     $ruleObject | Add-Member -MemberType NoteProperty -Name RecipientList -Value $newaddress
     $ruleObject | Add-Member -MemberType NoteProperty -Name Subject/Message/Text -Value $subjectText
     $ruleObject | Add-Member -MemberType NoteProperty -Name Action -Value $tempActions
-    $ruleObject | Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
+    $ruleObject| Add-Member -MemberType NoteProperty -Name SpecifiedFolder -Value $folder
     if($formName -ne ""){
       $ruleObject | Add-Member -MemberType NoteProperty -Name Formname -Value $formName
     }
@@ -232,6 +235,7 @@ function getOutlookRules{
       $ruleObject | Add-Member -MemberType NoteProperty -Name DistributionGroup -Value $addressRules
     }
     if($colorCategories -ne ""){
+      write-host $colorCategories
       $ruleObject | Add-Member -MemberType NoteProperty -Name ColorCategory -Value $colorCategories
     }
     if($importanceLevel -ne ""){
@@ -245,6 +249,7 @@ function getOutlookRules{
     $arrayOfRules.Add($ruleObject) | out-null
     }
 }
+$scriptLocation = Get-Location | Select-Object -ExpandProperty Path
 getOutlookRules -LocalRulesOnly $LocalRulesOnly
 $arrayOfRules | Format-Table
-$arrayOfRules | Export-Csv "C:\Kits\Rules.csv" -NoTypeInformation
+$arrayOfRules | Export-Csv "$scriptLocation\Rules.csv" -NoTypeInformation
