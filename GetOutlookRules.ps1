@@ -220,7 +220,7 @@ function getOutlookRules{
     $ruleObject = New-Object -TypeName PSObject 
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleName -Value $RuleName
     $ruleObject | Add-Member -MemberType NoteProperty -Name RuleType -Value $tempRuleType
-    $ruleObject| Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
+    $ruleObject | Add-Member -MemberType NoteProperty -Name Conditions -Value $tempConditions
     $ruleObject | Add-Member -MemberType NoteProperty -Name RecipientList -Value $newaddress
     $ruleObject | Add-Member -MemberType NoteProperty -Name Subject/Message/Text -Value $subjectText
     $ruleObject | Add-Member -MemberType NoteProperty -Name Action -Value $tempActions
