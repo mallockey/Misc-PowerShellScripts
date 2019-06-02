@@ -3,45 +3,45 @@ Param(
     [Parameter(mandatory=$true)]$SubnetMask
 )
 $subnetMasks = @{
-255 = 8
-254 = 7
-252 = 6
-248 = 5
-240 = 4
-224 = 3
-192 = 2
-128 = 1
-0 =   0
+  255 = 8
+  254 = 7
+  252 = 6
+  248 = 5
+  240 = 4
+  224 = 3
+  192 = 2
+  128 = 1
+  0 =   0
 }
 $subnetIncrements = @{
-128 = 128
-192 = 64
-224 = 32
-240 = 16
-248 = 8
-252 = 4
-254 = 2
-255 = 1
+  128 = 128
+  192 = 64
+  224 = 32
+  240 = 16
+  248 = 8
+  252 = 4
+  254 = 2
+  255 = 1
 }
 
 #Gets the range of each subnet based on what it is incrementing by.
 function getRange{
-Param(
-$numberOfRanges,
-$increment
-)
-$ranges = [System.Collections.ArrayList]@()
+  Param(
+  $numberOfRanges,
+  $increment
+  )
+  $ranges = [System.Collections.ArrayList]@()
     for($i = 0; $i -lt $numberOfRanges; $i++){
-	if($i -gt 0){
-	$firstBound =  $increment * $i
-	$endBound = $increment * ($i + 1)
-	$ranges.add($firstBound..$endBound)
-	}
-	else{
-	$ranges.Add(0..$increment)
-	}		
+      if($i -gt 0){
+        $firstBound =  $increment * $i
+        $endBound = $increment * ($i + 1)
+        $ranges.add($firstBound..$endBound)
+      }
+      else{
+        $ranges.Add(0..$increment)
+      }		
     }
-return $ranges
+  return $ranges
 }
 #Gets which octet is incrementing by based on it not being 255 or 0
 function getPosition{
@@ -56,45 +56,45 @@ function getPosition{
 }
 
 function getIncrement{
-Param(
-$octet
-)
-$keys = $subnetIncrements.keys
-    foreach($key in $keys){
-	if($octet -eq $key){
-	$increment = $subnetIncrements.item($key)
-	}
-    }
-return $increment	
+  Param(
+  $octet
+  )
+  $keys = $subnetIncrements.keys
+  foreach($key in $keys){
+	  if($octet -eq $key){
+	    $increment = $subnetIncrements.item($key)
+	  }
+   }
+  return $increment	
 }
 #Gets the number of subnet bits based on dictionary values. This is only the number of bits that have been subnetted. Not the total.
 #Ex. If it was a /9 it would return 1 as only one bit is being borrowed from the second octet.
 function getSubnetBits{
-Param(
-$octet
-)
+  Param(
+  $octet
+  )
     for($i =0; $i-le 8; $i++){
-	if(($subnetmasks.GetEnumerator() | Where-Object {$_.value -eq $i} | select -expandproperty name) -eq $octet){
-	$numberOfNetworkBits+= $subnetMasks.GetEnumerator() | where-object {$_.Value -eq $i} | select -expandproperty value
-	}
+    	if(($subnetmasks.GetEnumerator() | Where-Object {$_.value -eq $i} | select -expandproperty name) -eq $octet){
+	      $numberOfNetworkBits+= $subnetMasks.GetEnumerator() | where-object {$_.Value -eq $i} | select -expandproperty value
+	    }
     }		
-return $numberOfNetworkBits
+  return $numberOfNetworkBits
 }
 #Finds the current range based on the position where the subnet increases and the IP address
 function getCurrentRange{
-Param(
-$ranges,
-$IPArray,
-$position
-)	
+  Param(
+  $ranges,
+  $IPArray,
+  $position
+  )	
 foreach($range in $ranges){
     for($i = 0; $i -lt $range.length; $i++){
         if($range[$i] -eq $IPArray[$position]){
-        $currentRange = $range
-	}
+          $currentRange = $range
+	      }
     }
-}	
-return $currentRange		
+  }	
+  return $currentRange		
 }
 function makeArray{
 Param(
