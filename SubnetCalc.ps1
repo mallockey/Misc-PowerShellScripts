@@ -1,3 +1,6 @@
+<#
+This is a first attempt at writting a subnet calculator without converting the bits to binary.
+#>
 Param(
     [Parameter(mandatory=$true)]$IPAddress,
     [Parameter(mandatory=$true)]$SubnetMask
