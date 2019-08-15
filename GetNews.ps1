@@ -1,5 +1,5 @@
 Param(
-	[Int]$NumberOfArticles = 10
+[Int]$NumberOfArticles = 10
 )
 Add-Type -AssemblyName System.Web
 $Header = @"
