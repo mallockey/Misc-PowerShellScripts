@@ -1,3 +1,7 @@
+<#
+This script fetches articles from y.combinator and science daily, use the NumberOfArticles parameter to specify how many articles you 
+want to fetch. 10 is the default.
+#>
 Param(
   [Int]$NumberOfArticles = 10
 )
