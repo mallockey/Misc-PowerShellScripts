@@ -75,6 +75,7 @@ function getScienceDaily{
 	$secondVar = [System.Web.HttpUtility]::HtmlDecode($scienceDailyLinks)
 	$secondVar | Out-File "C:\Kits\News.html" -Append
 }
+
 ConvertTo-Html -head $header -Body  "<h1>$todaysDateAndTime's news</h1>" | Out-File "C:\kits\News.html" 
 
 getHackerNews
