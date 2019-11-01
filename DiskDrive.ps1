@@ -1,120 +1,94 @@
-try{
-import-module ActiveDirectory -erroraction stop
-}
-catch{
-write-host -foregroundcolor red "Run from a domain controller"
-exit
-}
-$ou = read-host "Please enter the OU where workstations/servers are"
-try
-{
-$servers = get-adcomputer -filter * -searchbase $ou| select -expandproperty name
-}
-catch
-{
-write-host -foreGroundColor red "OU not correct please verify OU and rerun."
-read-host 
-exit
-}
-$currentPath = Get-Location
-$currentPath = $currentPath.path
-$tableName = "DiskDrives"
+param(
+  [Switch]$ActiveDirectory,
+  [String]$WorkstationsOU,
+  [String]$InputFile,
+  [String]$OutputFile,
+  [Switch]$WinRM,
+  [Switch]$AllComputers,
+  [Switch]$WorkstationsOnly,
+  [Switch]$ServersOnly
+)
+$ErrorActionPreference = 'Stop'
 
-write-host "Getting disk drive space from computers in computers.txt"
-
-#Create Table object
-$table = New-Object system.Data.DataTable “$tableName”
-
-#Define Columns
-$col1 = New-Object system.Data.DataColumn ComputerName,([string])
-$col2 = New-Object system.Data.DataColumn DriveLetter,([string])
-$col3 = New-Object system.Data.DataColumn DriveLabel,([string])
-$col4 = New-Object system.Data.DataColumn FreeSpace,([string])
-$col5 = New-Object system.Data.DataColumn TotalSpace,([string])
-$col6 = New-Object system.Data.DataColumn PercentFree,([string])
-$col7 = New-Object system.Data.DataColumn Status,([string])
-
-$table.columns.add($col1)
-$table.columns.add($col2)
-$table.columns.add($col3)
-$table.columns.add($col4)
-$table.columns.add($col5)
-$table.columns.add($col6)
-$table.columns.add($col7)
-
-foreach($server in $servers){
-    if(test-connection $server -quiet -count 1){
+if($ActiveDirectory){
+  try{
+    Import-Module ActiveDirectory -erroraction stop
+  }catch{
+    Write-Output "Run from a domain controller"
+    exit
+  }
+  if($AllComputers){
+    $allComputers = Get-ADComputer -Filter {Enabled -eq $True} | Select-Object -expandproperty Name
+  }elseif($WorkstationsOU){
     try{
-    $allDriveInfo = get-wmiobject -class win32_logicaldisk -computerName $server -errorAction stop
+      $allComputers = Get-ADComputer -Filter {Enabled -eq $True} -SearchBase $WorkstationsOU | Select-Object -expandproperty Name
     }
     catch{
-    write-host -ForegroundColor red "Error getting disk space from $server"
-    continue
+      Write-Output "OU not correct please verify OU and rerun."
+      exit
     }
-    write-host -foregroundcolor green "Getting info from: $server"
-        foreach($drive in $allDriveInfo){
-	    if($drive.FreeSpace -eq $null){
-	    continue
-	    }
-	    $driveName = $drive.VolumeName
-	    $freeSpace = [int]($drive.FreeSpace / 1gb)
-	    $totalSpace = [int]($drive.Size / 1gb)
-	    $driveLetter = $drive.DeviceID
-	    [int]$percentFree = ($freeSpace / $totalSpace) * 100
-	        if($percentFree -lt 10)
-		{
-		$diskStatus = "LOW"
-		}
-		else{
-		$diskStatus = "OK"
-		}
-	    [string]$freeSpace += " GBs"
-	    [string]$totalSpace += " GBs"
-	    [string]$percentFree +="%"
-	    $row = $table.NewRow()
-	    $row.DriveLetter = "$driveLetter" 
-	    $row.DriveLabel = "$driveName" 
-	    $row.ComputerName = "$server"
-	    $row.freeSpace = "$freeSpace"
-	    $row.TotalSpace = "$totalSpace"
-	    $row.PercentFree = "$Percentfree"
-	    $row.Status = "$diskStatus"
-	    #Add the row to the table
-	    $table.Rows.Add($row)
+  }elseif($WorkstationsOnly){
+    $allComputers = Get-ADComputer -Filter {OperatingSystem -NotLike '*server*' -and Enabled -eq $True} | Select-Object -ExpandProperty Name
+  }elseif($ServersOnly){
+    $allComputers = Get-ADComputer -Filter {OperatingSystem -Like '*server*' -and Enabled -eq $True} | Select-Object -ExpandProperty Name
+  }
+}else{
+  try{
+    $allComputers = Get-Content $InputFile 
+  }catch{
+    Write-Output "$inputFile is not a valid list of workstations."
+  }
+}
+  
+  $currentPath = Get-Location
+  $currentPath = $currentPath.path
+  $resultsArray = @()
+  
+  $objProp = @{
+    ComputerName = $null
+    DriveLetter = $null
+    DriveLabel = $null
+    FreeSpace = $null
+    TotalSpace = $null
+    PercentFree = $null
+    Status = $null
+    Online = $null
+  }
+
+for($i=0; $i -lt $allComputers.length; $i++){
+  [Int]$currentPercent = ($i / $allComputers.length) * 100
+  Write-Progress -Activity "Getting disk info from $($allComputers[$i])" -CurrentOperation "$currentPercent% completed"
+  
+  $computerObj = New-Object -TypeName PSObject -Prop $objProp
+  $currentComputer = $allComputers[$i]
+  $computerObj.ComputerName = $currentComputer
+
+  if(Test-Connection $currentComputer -Quiet -Count 1){
+
+    $computerObj.Online = "Online"
+    if($WinRM){
+      $allDriveInfo = Get-CimInstance -ClassName Win32_LogicalDisk -ComputerName $currentComputer
+    }else{
+      $allDriveInfo = Get-WmiObject -Class Win32_LogicalDisk -ComputerName $currentComputer
+    }
+    foreach($drive in $allDriveInfo){
+      if($drive.FreeSpace -eq $null){
+        continue
+      }
+      $computerObj.DriveLetter = $drive.DeviceID
+      $computerObj.DriveLabel = $drive.DriveLabel
+      $computerObj.FreeSpace = [int]($drive.FreeSpace / 1gb)
+      $computerObj.TotalSpace = [int]($drive.Size / 1gb)
+      $computerObj.PercentFree = [Int](($computerObj.FreeSpace / $computerObj.TotalSpace) * 100)
+      $computerObj.Status = "OK"
+        if($obj.PercentFree -lt 10){
+          $computerObj.Status = "LOW"
         }
+      }
+    }else{
+      $computerObj.Online = "Offline"
     }
-    else{
-    write-host -foregroundcolor yellow $server is not online
-    }
+    $resultsArray += $computerObj
 }
-
-$Header = @"
-<style>
-TABLE {border-width: 1px; border-style: solid; border-color: black; border-collapse: collapse;}
-TH {border-width: 1px; padding: 3px; border-style: solid; border-color: black; background-color: #6495ED;}
-TD {border-width: 1px; padding: 3px; border-style: solid; border-color: black; background-color: yellow;}
-</style>
-"@
-
-$table | format-table -AutoSize 
-
-write-host "----------------------------"
-write-host "1) Export to CSV"
-write-host "2) Export to HTML"
-write-host "3) Export to both"
-
-write-host "Enter any other key to exit"
-write-host "----------------------------"
-$choice = read-host "Enter decision"
-
-if($choice -eq 1){
-	$table | export-csv $currentPath"\Diskspace.csv" -noTypeInformation
-}
-elseif($choice -eq 2){
-	$table | convertto-HTML -prop ComputerName, DriveLetter, DriveLabel, FreeSpace, TotalSpace, PercentFree, Status -head $Header -Title "Disk Drive Space" | out-file $currentPath"\Diskspace.html"
-}
-elseif ($choice -eq 3){
-	$table | export-csv $currentPath"\Diskspace.csv" -noTypeInformation
-	$table | convertto-HTML -prop ComputerName, DriveLetter, DriveLabel, FreeSpace, TotalSpace, PercentFree, Status -head $Header -Title "Disk Drive Space" | out-file $currentPath"\Diskspace.html"
-}
-
+$resultsArray | ft
+$resultsArray | Export-Csv "$outputFile\DiskDriveInfo.csv" -NoTypeInformation
