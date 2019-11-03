@@ -2,8 +2,8 @@ Param(
   [Parameter(ParameterSetName = "AD")][ValidateNotNullOrEmpty()][String]$SpecifyOU,
   [Parameter(ParameterSetName = "AD")][Switch]$WorkstationsOnly,
   [Parameter(ParameterSetName = "AD")][Switch]$ServersOnly,
-  [Parameter(ParameterSetName = "InputFile",ValueFromPipeline)][ValidateNotNullOrEmpty()][String]$InputFile,
-  [parameter(ParameterSetName = "SingleComputer")][String]$ComputerName,
+  [Parameter(ParameterSetName = "InputFile")][ValidateNotNullOrEmpty()][String]$InputFile,
+  [parameter(ParameterSetName = "SingleComputer",ValueFromPipeline)][Array]$ComputerName,
   [String]$OutputFile,
   [Switch]$UseCIM
 )
@@ -14,7 +14,8 @@ if($WorkstationsOU -or $WorkstationsOnly -or $ServersOnly){
   try{
     Import-Module ActiveDirectory -erroraction stop
   }catch{
-    Write-Warning "Run from a domain controller"
+    Write-Warning "Unable to import the ActiveDirectory Module"
+    Write-Warning "Make sure you are running this from a domain controller"
     exit
   }
   if($SpecifyOU){
@@ -39,7 +40,7 @@ if($WorkstationsOU -or $WorkstationsOnly -or $ServersOnly){
     Write-Warning "$inputFile is not a valid list of workstations."
   }
 }elseif($computerName){
-  $allComputers = $ComputerName.Split("")
+  $allComputers = $ComputerName
 }
 
   $resultsArray = @()
