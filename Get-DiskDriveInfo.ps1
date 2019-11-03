@@ -3,16 +3,16 @@ Param(
   [Parameter(ParameterSetName = "AD")][Switch]$WorkstationsOnly,
   [Parameter(ParameterSetName = "AD")][Switch]$ServersOnly,
   [Parameter(ParameterSetName = "InputFile")][ValidateNotNullOrEmpty()][String]$InputFile,
-  [parameter(ParameterSetName = "SingleComputer",ValueFromPipeline)][Array]$ComputerName,
+  [parameter(ParameterSetName = "Computers",ValueFromPipeline)][Array]$ComputerName,
   [String]$OutputFile,
   [Switch]$UseCIM
 )
 
 $ErrorActionPreference = 'Stop'
 
-if($WorkstationsOU -or $WorkstationsOnly -or $ServersOnly){
+if($SpecifyOU -or $WorkstationsOnly -or $ServersOnly){
   try{
-    Import-Module ActiveDirectory -erroraction stop
+    Import-Module ActiveDirectory
   }catch{
     Write-Warning "Unable to import the ActiveDirectory Module"
     Write-Warning "Make sure you are running this from a domain controller"
@@ -20,18 +20,18 @@ if($WorkstationsOU -or $WorkstationsOnly -or $ServersOnly){
   }
   if($SpecifyOU){
     try{
-      $allComputers = Get-ADComputer -Filter {Enabled -eq $True} -SearchBase $WorkstationsOU | Select-Object -expandproperty Name
+      $allComputers = (Get-ADComputer -Filter * -SearchBase $SpecifyOU).Name
     }
     catch{
       Write-Warning "OU not correct please verify OU and rerun."
       exit
     }
   }elseif($WorkstationsOnly){
-    $allComputers = Get-ADComputer -Filter {OperatingSystem -NotLike '*server*' -and Enabled -eq $True} | Select-Object -ExpandProperty Name
+    $allComputers = (Get-ADComputer -Filter {OperatingSystem -NotLike '*server*' -and Enabled -eq $True}).Name
   }elseif($ServersOnly){
-    $allComputers = Get-ADComputer -Filter {OperatingSystem -Like '*server*' -and Enabled -eq $True} | Select-Object -ExpandProperty Name
+    $allComputers = (Get-ADComputer -Filter {OperatingSystem -Like '*server*' -and Enabled -eq $True}).Name
   }else{
-    $allComputers = Get-ADComputer -Filter {Enabled -eq $True} | Select-Object -expandproperty Name
+    $allComputers = (Get-ADComputer -Filter {Enabled -eq $True}).Name
   }
 }elseif($inputFile){
   try{
@@ -142,12 +142,12 @@ for($i=0; $i -lt $allComputers.length; $i++){
   }
 }
 
-$resultsArray | Format-Table
+$resultsArray | Sort-Object Online -Descending | Format-Table
 
 if($OutputFile){
   $checkIfCSV = $OutputFile.Substring($OutputFile.Length -3)
   if($checkIfCSV -ne "csv"){
     $OutputFile = $OutputFile.Replace($checkIfCSV,"csv")
   }
-  $resultsArray | Export-Csv $outputFile -NoTypeInformation
+  $resultsArray | Sort-Object Online -Descending | Export-Csv $outputFile -NoTypeInformation
 }
