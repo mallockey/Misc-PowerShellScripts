@@ -102,11 +102,10 @@ for($i=0; $i -lt $allComputers.length; $i++){
         
         $totalSpace = ([int]($drive.Size / 1gb))
         $totalSpaceString = $totalSpace.ToString() + "GBs"
+        
         $percentFree = ([Int](($freeSpace / $totalSpace) * 100))
         $percentFreeString = $percentFree.ToString() + "%"
 
-        $totalSpace = ([int]($drive.Size / 1gb))
-        $totalSpaceString = $totalSpace.ToString() + "GBs"
         $computerObj.FreeSpace = $freeSpaceString     
         $computerObj.ComputerName = $currentComputer
         $computerObj.Online = "Online"
