@@ -37,7 +37,7 @@ Try{
   Write-Warning $_
 }
 
-[String]$OfficeArch = "64"
+$OfficeArch = "64"
 $OfficeVersionEdition = "O365ProPlusRetail"
 
 If($OfficePP32Bit){
@@ -47,6 +47,7 @@ If($OfficeVersion){
   $OfficeVersionEdition = "O365BusinessRetail"
 }
 
+#XML data that will be used for the download/install
 $OfficeXML = [XML]@"
 <Configuration>
   <Add OfficeClientEdition="$OfficeArch">
@@ -60,6 +61,7 @@ $OfficeXML = [XML]@"
 
 #Save the XML file
 $OfficeXML.Save("$OfficeInstallerPath\OfficeInstall.xml")
+
 #Run the install
 Try{
   Write-Output "Downloading and installing Office 365"
@@ -69,6 +71,7 @@ Try{
   Write-Warning $_
 }
 
+#Verify the install was successfull
 If($OfficeInstall.ExitCode -ne 0){
   Write-Warning "Office install may have installed with errors."
 }Else{
