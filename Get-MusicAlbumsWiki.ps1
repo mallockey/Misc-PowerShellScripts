@@ -107,3 +107,4 @@ foreach($CurrentYear in $Year){
 }
 
 $ArrayOfAlbums | Where-Object {$_.Artist -like "*$ArtistToSearch*" -and $_.ReleaseDate -like "*$Month*"}
+
