@@ -2,7 +2,7 @@ param(
     [String]$ExportFolder
 )
 
-$Header = @"
+$HeaderCSS = @"
 <title>My News Sites</title>
 <style>
 
@@ -141,7 +141,7 @@ function Get-RedditSubReddit{
         [String]$SubReddit
     )
 
-    $ProgrammingLinks = (Invoke-RestMethod -Uri https://www.reddit.com/r/$SubReddit/hot/.json).data.children.data | Select-Object Title, url
+    $ProgrammingLinks = (Invoke-RestMethod -Uri https://www.reddit.com/r/$SubReddit/hot/.json).data.children.data | Sort-Object score -Descending | Select-Object Title, url
     $HTMLString = @()
     $HTMLString += "<table>"
     $HTMLString += "<tr><th>/r/$SubReddit</th></tr>"
@@ -163,14 +163,14 @@ if(!($ExportFolder)){
     $ExportFolder = $PSScriptRoot
 }
 try{
-    $Header | Out-File $ExportFolder\News.html -ErrorAction "Stop"
+    $HeaderCSS | Out-File $ExportFolder\News.html -ErrorAction "Stop"
 }catch{
     Write-Warning "Unable to output file to $ExportFolder"
     Write-Warning "Please confirm you have permission to the path above or try another path"
     exit
 }
 
-$HTML = @"
+$HTMLBody = @"
 <body>
     <div id=`"header`">
         <h1>My News Sites</h1>
@@ -200,7 +200,7 @@ $HTML = @"
 </body>
 "@
 
-$HTML | Out-File $ExportFolder\News.html -Append
+$HTMLBody | Out-File $ExportFolder\News.html -Append
 
 $VerbosePreference = "Continue"
 if(Test-Path $ExportFolder\News.html){
