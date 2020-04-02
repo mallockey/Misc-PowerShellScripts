@@ -206,5 +206,5 @@ $VerbosePreference = "Continue"
 if(Test-Path $ExportFolder\News.html){
     Write-Verbose "News.html file successfully exported to $($ExportFolder)"
 }else{
-    Write-Warning "An unknown error occured, the News was file was not exported"
+    Write-Warning "An unknown error occured, the News file was not exported"
 }
