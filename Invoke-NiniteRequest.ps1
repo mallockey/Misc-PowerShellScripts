@@ -38,6 +38,7 @@ if(!($SpecifyApps)){
   if(!(Test-Path ".\ListOfApps.txt")){
     Write-Warning "ListOfApps.txt missing in directory"
     Write-Warning "You can regenerate it by using the -FetchLatestAppNames parameter"
+    exit
   }
 
   $ListOfApps = Get-Content ".\ListOfApps.txt"
@@ -46,7 +47,7 @@ if(!($SpecifyApps)){
 
   $UsersApps = @()
   while($UserInput -ne "done"){
-    $UserInput = Read-Host -Prompt "Enter the apps you'd like to install from the list above one at a time"
+    $UserInput = Read-Host -Prompt "Enter the apps you'd like to install from the list above one at a time, enter done to finish"
     if($UserInput -eq "done"){
       break
     }
